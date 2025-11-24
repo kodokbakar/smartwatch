@@ -3,28 +3,20 @@ part of 'app_pages.dart';
 
 abstract class Routes {
   Routes._();
-
-  // Halaman utama
   static const HOME = _Paths.HOME;
-
-  // Dummy tambahan
-  static const LOGIN = _Paths.LOGIN;           // Route ke halaman login
-  static const PROFILE = _Paths.PROFILE;       // Route ke halaman profil
-  static const SETTINGS = _Paths.SETTINGS;     // Route ke halaman pengaturan
-  static const DETAIL = _Paths.DETAIL;         // Route ke halaman detail item
-  static const DASHBOARD = _Paths.DASHBOARD;   // Route ke dashboard
+  static const SPLASHSCREEN = _Paths.SPLASHSCREEN;
+  static const WELCOME = _Paths.WELCOME;
+  static const LOGIN = _Paths.LOGIN;
+  static const REGISTER = _Paths.REGISTER;
+  static const PAGE2 = _Paths.PAGE2;
 }
 
 abstract class _Paths {
   _Paths._();
-
-  // Path asli
   static const HOME = '/home';
-
-  // Dummy tambahan
-  static const LOGIN = '/login';               // Path login
-  static const PROFILE = '/profile';           // Path profil user
-  static const SETTINGS = '/settings';         // Path pengaturan aplikasi
-  static const DETAIL = '/detail/:id';         // Path detail dengan parameter
-  static const DASHBOARD = '/dashboard';       // Path dashboard utama
+  static const SPLASHSCREEN = '/splashscreen';
+  static const WELCOME = '/welcome';
+  static const LOGIN = '/login';
+  static const REGISTER = '/register';
+  static const PAGE2 = '/page2';
 }
