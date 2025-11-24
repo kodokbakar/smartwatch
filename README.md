@@ -55,7 +55,14 @@ https://drive.google.com/file/d/18KvwUAzBsrk--F9YZKrNi5tESxoR_dGk/view?usp=shari
 ---
 
 ## 📌 Tabel Pembagian Tugas (Backlog)
-*-*
+*Agile Organization – SmartWatcher
+
+| Agile Organization | Auth   | Profile Section | Dashboard Home | Laporan | Aktivitas Distribusi   | Aduan Politik  |
+|--------------------|--------|-----------------|----------------|---------|------------------------|----------------|
+| **Product Owner**  | Ikhsan | Yudis           | Rayangga       | Ikhsan  | Yudis & Deysen         | Adit           |
+| **Scrum Master**   | Ikhsan | Ikhsan          | Ikhsan         | Ikhsan  | Ikhsan                 | Ikhsan         |
+| **Tim Pengembangan** | Ikhsan<br>Yudis<br>Rayangga<br>Deysen<br>Adit | Ikhsan<br>Yudis<br>Rayangga<br>Deysen<br>Adit | Ikhsan<br>Yudis<br>Rayangga<br>Deysen<br>Adit | Ikhsan<br>Yudis<br>Rayangga<br>Deysen<br>Adit | Ikhsan<br>Yudis<br>Rayangga<br>Deysen<br>Adit | Ikhsan<br>Yudis<br>Rayangga<br>Deysen<br>Adit |
+*
 
 ---
 
