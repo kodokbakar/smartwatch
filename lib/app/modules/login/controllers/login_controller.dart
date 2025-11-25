@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../models/login_model.dart';
 
 class LoginController extends GetxController {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final LoginModel model = LoginModel(
+    emailController: TextEditingController(),
+    passwordController: TextEditingController(),
+  );
 
   final isPasswordHidden = true.obs;
   final isLoading = false.obs;
 
+  TextEditingController get emailController => model.emailController;
+  TextEditingController get passwordController => model.passwordController;
+
   @override
   void onClose() {
-    emailController.dispose();
-    passwordController.dispose();
+    model.dispose();
     super.onClose();
   }
 
@@ -20,7 +27,7 @@ class LoginController extends GetxController {
   }
 
   void login() async {
-    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+    if (model.hasEmptyField) {
       Get.snackbar(
         'Error',
         'Please fill all fields',
@@ -31,26 +38,50 @@ class LoginController extends GetxController {
       return;
     }
 
+    final supabase = Supabase.instance.client;
+    final email = model.email;
+    final password = model.password;
+
     isLoading.value = true;
 
-    // Simulate API call
-    await Future.delayed(Duration(seconds: 2));
+    try {
+      await supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
 
-    isLoading.value = false;
+      isLoading.value = false;
 
-    // Navigate to home
-    Get.offAllNamed('/home');
+      Get.offAllNamed('/home');
 
-    // Show success notification
-    Get.snackbar(
-      'Sukses!',
-      'Berhasil Login',
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.green.shade400,
-      colorText: Colors.white,
-      duration: Duration(seconds: 3),
-      margin: EdgeInsets.all(16),
-      borderRadius: 12,
-    );
+      Get.snackbar(
+        'Sukses!',
+        'Berhasil Login',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.green.shade400,
+        colorText: Colors.white,
+        duration: Duration(seconds: 3),
+        margin: EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    } on AuthException catch (e) {
+      isLoading.value = false;
+      Get.snackbar(
+        'Error',
+        e.message,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade400,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      isLoading.value = false;
+      Get.snackbar(
+        'Error',
+        'Something went wrong',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade400,
+        colorText: Colors.white,
+      );
+    }
   }
 }
