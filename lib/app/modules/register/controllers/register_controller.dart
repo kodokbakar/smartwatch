@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterController extends GetxController {
   final nameController = TextEditingController();
+  final usernameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -14,6 +16,7 @@ class RegisterController extends GetxController {
   @override
   void onClose() {
     nameController.dispose();
+    usernameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
@@ -29,8 +32,8 @@ class RegisterController extends GetxController {
   }
 
   void register() async {
-    // Validation
     if (nameController.text.isEmpty ||
+        usernameController.text.isEmpty ||
         emailController.text.isEmpty ||
         passwordController.text.isEmpty ||
         confirmPasswordController.text.isEmpty) {
@@ -66,23 +69,74 @@ class RegisterController extends GetxController {
       return;
     }
 
+    final supabase = Supabase.instance.client;
+    final fullName = nameController.text.trim();
+    final username = usernameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+
     isLoading.value = true;
 
-    // Simulate API call
-    await Future.delayed(Duration(seconds: 2));
+    try {
+      final AuthResponse response = await supabase.auth.signUp(
+        email: email,
+        password: password,
+        data: {
+          'full_name': fullName,
+          'username': username,
+        },
+      );
 
-    isLoading.value = false;
+      final user = response.user;
 
-    // Show success message
-    Get.snackbar(
-      'Success',
-      'Registration successful!',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green.shade400,
-      colorText: Colors.white,
-    );
+      if (user == null) {
+        isLoading.value = false;
+        Get.snackbar(
+          'Error',
+          'Registration failed',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.shade400,
+          colorText: Colors.white,
+        );
+        return;
+      }
 
-    // Navigate to login
-    Get.offNamed('/login');
+      await supabase.from('user').insert({
+        'id': user.id,
+        'email': email,
+        'username': username,
+        'full_name': fullName,
+      });
+
+      isLoading.value = false;
+
+      Get.snackbar(
+        'Success',
+        'Registration successful!',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.shade400,
+        colorText: Colors.white,
+      );
+
+      Get.offNamed('/login');
+    } on AuthException catch (e) {
+      isLoading.value = false;
+      Get.snackbar(
+        'Error',
+        e.message,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade400,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      isLoading.value = false;
+      Get.snackbar(
+        'Error',
+        'Something went wrong',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade400,
+        colorText: Colors.white,
+      );
+    }
   }
 }

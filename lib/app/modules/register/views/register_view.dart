@@ -33,7 +33,6 @@ class RegisterView extends GetView<RegisterController> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(height: 60),
-                // Register Title
                 Text(
                   'Register',
                   style: TextStyle(
@@ -43,7 +42,6 @@ class RegisterView extends GetView<RegisterController> {
                   ),
                 ),
                 SizedBox(height: 40),
-                // Name Field
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.8),
@@ -74,7 +72,36 @@ class RegisterView extends GetView<RegisterController> {
                   ),
                 ),
                 SizedBox(height: 20),
-                // Email Field
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: controller.usernameController,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      hintText: 'Username',
+                      prefixIcon: Icon(
+                        Icons.alternate_email,
+                        color: Colors.grey.shade600,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.8),
@@ -105,7 +132,6 @@ class RegisterView extends GetView<RegisterController> {
                   ),
                 ),
                 SizedBox(height: 20),
-                // Password Field
                 Obx(
                   () => Container(
                     decoration: BoxDecoration(
@@ -147,7 +173,6 @@ class RegisterView extends GetView<RegisterController> {
                   ),
                 ),
                 SizedBox(height: 20),
-                // Confirm Password Field
                 Obx(
                   () => Container(
                     decoration: BoxDecoration(
@@ -189,7 +214,6 @@ class RegisterView extends GetView<RegisterController> {
                   ),
                 ),
                 SizedBox(height: 40),
-                // Register Button
                 Obx(
                   () => SizedBox(
                     width: double.infinity,
@@ -227,7 +251,6 @@ class RegisterView extends GetView<RegisterController> {
                   ),
                 ),
                 SizedBox(height: 20),
-                // Already have account text
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
