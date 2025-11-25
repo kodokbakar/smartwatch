@@ -255,7 +255,7 @@ class RegisterView extends GetView<RegisterController> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Already have an account? ',
+                      'Sudah punya akun? ',
                       style: TextStyle(
                         color: Colors.grey.shade700,
                         fontSize: 14,

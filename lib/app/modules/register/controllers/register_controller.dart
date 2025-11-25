@@ -2,24 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../models/register_model.dart';
+
 class RegisterController extends GetxController {
-  final nameController = TextEditingController();
-  final usernameController = TextEditingController();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
+  final RegisterModel model = RegisterModel(
+    nameController: TextEditingController(),
+    usernameController: TextEditingController(),
+    emailController: TextEditingController(),
+    passwordController: TextEditingController(),
+    confirmPasswordController: TextEditingController(),
+  );
 
   final isPasswordHidden = true.obs;
   final isConfirmPasswordHidden = true.obs;
   final isLoading = false.obs;
 
+  TextEditingController get nameController => model.nameController;
+  TextEditingController get usernameController => model.usernameController;
+  TextEditingController get emailController => model.emailController;
+  TextEditingController get passwordController => model.passwordController;
+  TextEditingController get confirmPasswordController => model.confirmPasswordController;
+
   @override
   void onClose() {
-    nameController.dispose();
-    usernameController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
+    model.dispose();
     super.onClose();
   }
 
@@ -32,11 +38,7 @@ class RegisterController extends GetxController {
   }
 
   void register() async {
-    if (nameController.text.isEmpty ||
-        usernameController.text.isEmpty ||
-        emailController.text.isEmpty ||
-        passwordController.text.isEmpty ||
-        confirmPasswordController.text.isEmpty) {
+    if (model.hasEmptyField) {
       Get.snackbar(
         'Error',
         'Please fill all fields',
@@ -47,7 +49,7 @@ class RegisterController extends GetxController {
       return;
     }
 
-    if (passwordController.text != confirmPasswordController.text) {
+    if (model.password != model.confirmPassword) {
       Get.snackbar(
         'Error',
         'Passwords do not match',
@@ -58,7 +60,7 @@ class RegisterController extends GetxController {
       return;
     }
 
-    if (passwordController.text.length < 6) {
+    if (model.password.length < 6) {
       Get.snackbar(
         'Error',
         'Password must be at least 6 characters',
@@ -70,10 +72,10 @@ class RegisterController extends GetxController {
     }
 
     final supabase = Supabase.instance.client;
-    final fullName = nameController.text.trim();
-    final username = usernameController.text.trim();
-    final email = emailController.text.trim();
-    final password = passwordController.text;
+    final fullName = model.fullName;
+    final username = model.username;
+    final email = model.email;
+    final password = model.password;
 
     isLoading.value = true;
 
