@@ -33,7 +33,6 @@ class LoginView extends GetView<LoginController> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(height: 250),
-                // Login Title
                 Text(
                   'Login',
                   style: TextStyle(
@@ -43,7 +42,6 @@ class LoginView extends GetView<LoginController> {
                   ),
                 ),
                 SizedBox(height: 60),
-                // Email Field
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.8),
@@ -74,7 +72,6 @@ class LoginView extends GetView<LoginController> {
                   ),
                 ),
                 SizedBox(height: 20),
-                // Password Field
                 Obx(
                   () => Container(
                     decoration: BoxDecoration(
@@ -116,7 +113,6 @@ class LoginView extends GetView<LoginController> {
                   ),
                 ),
                 SizedBox(height: 40),
-                // Login Button
                 Obx(
                   () => SizedBox(
                     width: double.infinity,
@@ -154,6 +150,29 @@ class LoginView extends GetView<LoginController> {
                   ),
                 ),
                 SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Belum punya akun? ',
+                      style: TextStyle(
+                        color: Colors.grey.shade700,
+                        fontSize: 14,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => Get.toNamed('/register'),
+                      child: Text(
+                        'Daftar',
+                        style: TextStyle(
+                          color: Colors.blue.shade600,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

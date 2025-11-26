@@ -46,10 +46,5 @@ class AppPages {
       page: () => const RegisterView(),
       binding: RegisterBinding(),
     ),
-    GetPage(
-      name: Routes.PAGE2,
-      page: () => const Page2View(),
-      binding: Page2Binding(),
-    ),
   ];
 }
