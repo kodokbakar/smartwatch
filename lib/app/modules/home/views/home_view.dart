@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
+import '../../../widgets/app_drawer.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -13,7 +14,33 @@ class HomeView extends GetView<HomeController> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.menu, color: Colors.black87),
-          onPressed: () {},
+          onPressed: () {
+            showGeneralDialog(
+              context: context,
+              barrierDismissible: true,
+              barrierLabel: MaterialLocalizations.of(
+                context,
+              ).modalBarrierDismissLabel,
+              barrierColor: Colors.black54,
+              transitionDuration: Duration(milliseconds: 300),
+              pageBuilder: (context, animation, secondaryAnimation) {
+                return Align(
+                  alignment: Alignment.centerLeft,
+                  child: AppDrawer(),
+                );
+              },
+              transitionBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: Offset(-1, 0),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+            );
+          },
         ),
         actions: [
           IconButton(
