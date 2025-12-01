@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/page3_controller.dart';
+import '../../../widgets/app_drawer.dart';
 
 class Page3View extends GetView<Page3Controller> {
   const Page3View({super.key});
@@ -14,7 +15,33 @@ class Page3View extends GetView<Page3Controller> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.menu, color: Colors.black87),
-          onPressed: () {},
+          onPressed: () {
+            showGeneralDialog(
+              context: context,
+              barrierDismissible: true,
+              barrierLabel: MaterialLocalizations.of(
+                context,
+              ).modalBarrierDismissLabel,
+              barrierColor: Colors.black54,
+              transitionDuration: Duration(milliseconds: 300),
+              pageBuilder: (context, animation, secondaryAnimation) {
+                return Align(
+                  alignment: Alignment.centerLeft,
+                  child: AppDrawer(),
+                );
+              },
+              transitionBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: Offset(-1, 0),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+            );
+          },
         ),
         actions: [
           IconButton(
@@ -31,7 +58,7 @@ class Page3View extends GetView<Page3Controller> {
             children: [
               // Top Statistics Cards
               Obx(
-                    () => Row(
+                () => Row(
                   children: [
                     Expanded(
                       child: _buildStatCard(
@@ -77,7 +104,7 @@ class Page3View extends GetView<Page3Controller> {
 
               // Reports List
               Obx(
-                    () => ListView.separated(
+                () => ListView.separated(
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
                   itemCount: controller.reports.length,
@@ -118,7 +145,7 @@ class Page3View extends GetView<Page3Controller> {
                     ),
                     SizedBox(height: 20),
                     Obx(
-                          () => Row(
+                      () => Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           _buildBottomStatItem(
@@ -257,11 +284,7 @@ class Page3View extends GetView<Page3Controller> {
                 color: iconBgColor,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                iconData,
-                color: iconColor,
-                size: 24,
-              ),
+              child: Icon(iconData, color: iconColor, size: 24),
             ),
             SizedBox(width: 12),
 
@@ -329,10 +352,7 @@ class Page3View extends GetView<Page3Controller> {
     );
   }
 
-  Widget _buildBottomStatItem({
-    required String value,
-    required String label,
-  }) {
+  Widget _buildBottomStatItem({required String value, required String label}) {
     return Column(
       children: [
         Text(
@@ -346,10 +366,7 @@ class Page3View extends GetView<Page3Controller> {
         SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-          ),
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
         ),
       ],
     );

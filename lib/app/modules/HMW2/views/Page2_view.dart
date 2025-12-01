@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/Page2_controller.dart';
+import '../../../widgets/app_drawer.dart';
 
 class Page2View extends GetView<Page2Controller> {
   const Page2View({super.key});
@@ -14,7 +15,33 @@ class Page2View extends GetView<Page2Controller> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.menu, color: Colors.black87),
-          onPressed: () {},
+          onPressed: () {
+            showGeneralDialog(
+              context: context,
+              barrierDismissible: true,
+              barrierLabel: MaterialLocalizations.of(
+                context,
+              ).modalBarrierDismissLabel,
+              barrierColor: Colors.black54,
+              transitionDuration: Duration(milliseconds: 300),
+              pageBuilder: (context, animation, secondaryAnimation) {
+                return Align(
+                  alignment: Alignment.centerLeft,
+                  child: AppDrawer(),
+                );
+              },
+              transitionBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: Offset(-1, 0),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+            );
+          },
         ),
         actions: [
           IconButton(
@@ -26,9 +53,7 @@ class Page2View extends GetView<Page2Controller> {
       body: Obx(() {
         if (controller.isLoading.value && controller.activities.isEmpty) {
           return Center(
-            child: CircularProgressIndicator(
-              color: Color(0xFF6C5CE7),
-            ),
+            child: CircularProgressIndicator(color: Color(0xFF6C5CE7)),
           );
         }
 
@@ -44,7 +69,7 @@ class Page2View extends GetView<Page2Controller> {
                 children: [
                   // Summary Cards Grid
                   Obx(
-                        () => GridView.count(
+                    () => GridView.count(
                       crossAxisCount: 2,
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
@@ -299,10 +324,7 @@ class Page2View extends GetView<Page2Controller> {
               alignment: Alignment.centerRight,
               child: Text(
                 '${activity.progress.toInt()}% Selesai',
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
               ),
             ),
           ],
