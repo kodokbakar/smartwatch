@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/HMW2/bindings/Page2_binding.dart';
+import '../modules/HMW2/views/Page2_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
@@ -43,6 +45,11 @@ class AppPages {
       name: _Paths.REGISTER,
       page: () => const RegisterView(),
       binding: RegisterBinding(),
+    ),
+    GetPage(
+      name: Routes.PAGE2,
+      page: () => const Page2View(),
+      binding: Page2Binding(),
     ),
   ];
 }
