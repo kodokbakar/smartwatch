@@ -74,23 +74,29 @@ class AppDrawer extends StatelessWidget {
                 isActive: currentRoute == '/home',
                 onTap: () {
                   Navigator.of(context).pop();
-                  Get.offAllNamed('/home');
+                  if (currentRoute != '/home') {
+                    Get.offNamed('/home');
+                  }
                 },
               ),
               _buildMenuItem(
                 title: 'Laporan',
-                isActive: currentRoute == '/laporan',
+                isActive: currentRoute == '/page3',
                 onTap: () {
                   Navigator.of(context).pop();
-                  // Navigate to laporan page
+                  if (currentRoute != '/page3') {
+                    Get.offNamed('/page3');
+                  }
                 },
               ),
               _buildMenuItem(
                 title: 'Aktivitas Distribusi',
-                isActive: currentRoute == '/aktivitas-distribusi',
+                isActive: currentRoute == '/page2',
                 onTap: () {
                   Navigator.of(context).pop();
-                  // Navigate to aktivitas distribusi page
+                  if (currentRoute != '/page2') {
+                    Get.offNamed('/page2');
+                  }
                 },
               ),
               _buildMenuItem(
@@ -98,7 +104,15 @@ class AppDrawer extends StatelessWidget {
                 isActive: currentRoute == '/aduan-publik',
                 onTap: () {
                   Navigator.of(context).pop();
-                  // Navigate to aduan publik page
+                  if (currentRoute != '/aduan-publik') {
+                    Get.snackbar(
+                      'Info',
+                      'Halaman Aduan Publik belum tersedia',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.blue.shade100,
+                      colorText: Colors.blue.shade900,
+                    );
+                  }
                 },
               ),
             ],
