@@ -1,7 +1,8 @@
 import 'package:get/get.dart';
 import 'package:smartwatch/app/modules/HMW3/bindings/Page3_binding.dart';
 import 'package:smartwatch/app/modules/HMW3/views/Page3_view.dart';
-
+import 'package:smartwatch/app/modules/HMW4/views/Page4_view.dart';
+import 'package:smartwatch/app/modules/HMW4/bindings/Page4_binding.dart';
 import '../modules/HMW2/bindings/Page2_binding.dart';
 import '../modules/HMW2/views/Page2_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -20,7 +21,7 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.PAGE3;
+  static const INITIAL = Routes.PAGE4;
 
   static final routes = [
     GetPage(
@@ -57,6 +58,11 @@ class AppPages {
       name: Routes.PAGE3,
       page: () => const Page3View(),
       binding: Page3Binding(),
+    ),
+    GetPage(
+      name: Routes.PAGE4,
+      page: () => const Page4View(),
+      binding: Page4Binding(),
     ),
   ];
 }

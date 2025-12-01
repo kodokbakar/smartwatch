@@ -10,6 +10,7 @@ abstract class Routes {
   static const REGISTER = _Paths.REGISTER;
   static const PAGE3 = _Paths.PAGE3;
   static const PAGE2 = _Paths.PAGE2;
+  static const PAGE4 = _Paths.PAGE4;
 
 }
 
@@ -22,4 +23,5 @@ abstract class _Paths {
   static const REGISTER = '/register';
   static const PAGE2 = '/page2';
   static const PAGE3 = '/page3';
+  static const PAGE4 = '/page4';
 }
