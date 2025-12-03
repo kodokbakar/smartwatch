@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:flutter/material.dart';
 
 class Page4Controller extends GetxController {
   // Statistik utama (sesuai kebutuhan UI)
