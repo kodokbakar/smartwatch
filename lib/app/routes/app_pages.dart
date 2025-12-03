@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
-import 'package:smartwatch/app/modules/HMW3/bindings/Page3_binding.dart';
-import 'package:smartwatch/app/modules/HMW3/views/Page3_view.dart';
-import 'package:smartwatch/app/modules/HMW4/views/Page4_view.dart';
-import 'package:smartwatch/app/modules/HMW4/bindings/Page4_binding.dart';
-import '../modules/HMW2/bindings/Page2_binding.dart';
-import '../modules/HMW2/views/Page2_view.dart';
+import 'package:smartwatch/app/modules/distribution_activities/bindings/distribution_activities_binding.dart';
+import 'package:smartwatch/app/modules/distribution_activities/views/distribution_activities_view.dart';
+import 'package:smartwatch/app/modules/public_complaint/views/public_complaint_view.dart';
+import 'package:smartwatch/app/modules/public_complaint/bindings/public_complaint_binding.dart';
+import '../modules/report/bindings/report_binding.dart';
+import '../modules/report/views/report_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
@@ -21,7 +21,7 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.PAGE4;
+  static const INITIAL = Routes.HOME;
 
   static final routes = [
     GetPage(
@@ -50,19 +50,19 @@ class AppPages {
       binding: RegisterBinding(),
     ),
     GetPage(
-      name: Routes.PAGE2,
-      page: () => const Page2View(),
-      binding: Page2Binding(),
+      name: _Paths.REPORT,
+      page: () => const ReportView(),
+      binding: ReportBinding(),
     ),
     GetPage(
-      name: Routes.PAGE3,
-      page: () => const Page3View(),
-      binding: Page3Binding(),
+      name: _Paths.DISTRIBUTION_ACTIVITIES,
+      page: () => const DistributionActivitiesView(),
+      binding: DistributionActivitiesBinding(),
     ),
     GetPage(
-      name: Routes.PAGE4,
-      page: () => const Page4View(),
-      binding: Page4Binding(),
+      name: _Paths.PUBLIC_COMPLAINT,
+      page: () => const PublicComplaintView(),
+      binding: PublicComplaintBinding(),
     ),
   ];
 }

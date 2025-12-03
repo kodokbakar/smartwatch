@@ -1,7 +1,8 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
-class Page3Controller extends GetxController {
+class DistributionActivitiesController extends GetxController {
+  final selectedTab = 0.obs;
   // Top statistics
   final RxInt laporanAktif = 247.obs;
   final RxInt dalamAntrean = 89.obs;
@@ -19,7 +20,7 @@ class Page3Controller extends GetxController {
       id: 1,
       title: 'Keterlambatan Proyek Jalan Raya Sudirman',
       description:
-      'Proyek senilai Rp 15 miliar mengalami keterlambatan 3 bulan karena perizinan yang lambat',
+          'Proyek senilai Rp 15 miliar mengalami keterlambatan 3 bulan karena perizinan yang lambat',
       status: 'Ditinjau',
       timeAgo: '2 jam yang lalu',
     ),
@@ -27,7 +28,7 @@ class Page3Controller extends GetxController {
       id: 2,
       title: 'Kualitas Material Gedung Sekolah Meragukan',
       description:
-      'Penggunaan material di Dewan sekolah pada pembangunan SDN 03, Jakarta Timur perlu diperiksa',
+          'Penggunaan material di Dewan sekolah pada pembangunan SDN 03, Jakarta Timur perlu diperiksa',
       status: 'Ditindaklanjuti',
       timeAgo: '5 jam yang lalu',
     ),
@@ -35,7 +36,7 @@ class Page3Controller extends GetxController {
       id: 3,
       title: 'Transparansi Anggaran Puskesmas Tanjung',
       description:
-      'Anggaran renovasi Puskesmas belum terpublikasi dengan jelas untuk membangun fasilitas kesehatan',
+          'Anggaran renovasi Puskesmas belum terpublikasi dengan jelas untuk membangun fasilitas kesehatan',
       status: 'Selesai',
       timeAgo: '1 hari yang lalu',
     ),
@@ -45,6 +46,10 @@ class Page3Controller extends GetxController {
   void onInit() {
     super.onInit();
     loadData();
+  }
+
+  void changeTab(int index) {
+    selectedTab.value = index;
   }
 
   // Load data
