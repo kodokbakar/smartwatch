@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/Page4_controller.dart';
+import '../controllers/public_complaint_controller.dart';
+import '../../../widgets/app_drawer.dart';
 
-class Page4View extends GetView<Page4Controller> {
-  const Page4View({super.key});
+class PublicComplaintView extends GetView<PublicComplaintController> {
+  const PublicComplaintView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,12 +14,42 @@ class Page4View extends GetView<Page4Controller> {
         backgroundColor: Colors.white,
         elevation: 0.5,
         leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.black87, size: 28),
-          onPressed: () {},
+          icon: Icon(Icons.menu, color: Colors.black87),
+          onPressed: () {
+            showGeneralDialog(
+              context: context,
+              barrierDismissible: true,
+              barrierLabel: MaterialLocalizations.of(
+                context,
+              ).modalBarrierDismissLabel,
+              barrierColor: Colors.black54,
+              transitionDuration: Duration(milliseconds: 300),
+              pageBuilder: (context, animation, secondaryAnimation) {
+                return Align(
+                  alignment: Alignment.centerLeft,
+                  child: AppDrawer(),
+                );
+              },
+              transitionBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: Offset(-1, 0),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+            );
+          },
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.account_circle_outlined, color: Colors.black87, size: 28),
+            icon: Icon(
+              Icons.account_circle_outlined,
+              color: Colors.black87,
+              size: 28,
+            ),
             onPressed: () {},
           ),
         ],
@@ -27,28 +58,28 @@ class Page4View extends GetView<Page4Controller> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-
             // ============================
             // TOP FILTER (BULAN INI / 3 BULAN / TAHUN)
             // ============================
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Container(
-                padding: EdgeInsets.all(6),
+            SizedBox(height: 10),
+            Obx(
+              () => Container(
+                padding: EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(40),
+                  borderRadius: BorderRadius.circular(25),
                 ),
                 child: Row(
                   children: [
-                    _filterItem("Bulan Ini", true),
-                    _filterItem("3 Bulan Terakhir", false),
-                    _filterItem("Tahun Ini", false),
+                    Expanded(child: _buildTabButton('Bulan Ini', 0)),
+                    Expanded(child: _buildTabButton('3 Bulan Terakhir', 1)),
+                    Expanded(child: _buildTabButton('Tahun Ini', 2)),
                   ],
                 ),
               ),
             ),
 
+            SizedBox(height: 20),
             // ============================
             // TOP PURPLE CARDS
             // ============================
@@ -134,21 +165,24 @@ class Page4View extends GetView<Page4Controller> {
   // ============================
   // FILTER BUTTONS
   // ============================
-  Widget _filterItem(String text, bool active) {
-    return Expanded(
+  Widget _buildTabButton(String label, int index) {
+    final isSelected = controller.selectedTab.value == index;
+    return GestureDetector(
+      onTap: () => controller.changeTab(index),
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 8),
+        padding: EdgeInsets.symmetric(vertical: 5),
         decoration: BoxDecoration(
-          color: active ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(30),
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(22),
         ),
-        alignment: Alignment.center,
-        child: Text(
-          text,
-          style: TextStyle(
-            color: active ? Colors.blue : Colors.black54,
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              color: isSelected ? Colors.blue.shade700 : Colors.grey.shade600,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+            ),
           ),
         ),
       ),
@@ -179,17 +213,25 @@ class Page4View extends GetView<Page4Controller> {
           children: [
             Text(
               title,
-              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             SizedBox(height: 8),
             // flexible + fittedbox prevents overflow with large text or accessibility font scaling
             Flexible(
               child: FittedBox(
                 fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
+                alignment: Alignment.center,
                 child: Text(
                   value,
-                  style: TextStyle(color: Colors.white, fontSize: 42, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 42,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -198,7 +240,6 @@ class Page4View extends GetView<Page4Controller> {
       ),
     );
   }
-
 
   // ============================
   // CATEGORY CARD
@@ -236,7 +277,10 @@ class Page4View extends GetView<Page4Controller> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
         SizedBox(height: 8),
         ClipRRect(
           borderRadius: BorderRadius.circular(10),
@@ -246,7 +290,7 @@ class Page4View extends GetView<Page4Controller> {
             backgroundColor: Colors.grey.shade300,
             valueColor: AlwaysStoppedAnimation(color),
           ),
-        )
+        ),
       ],
     );
   }
@@ -303,10 +347,17 @@ class Page4View extends GetView<Page4Controller> {
           children: [
             Text(
               total,
-              style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 40,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
             ),
             SizedBox(height: 10),
-            Text("Total Kasus", style: TextStyle(fontSize: 16, color: Colors.grey.shade600)),
+            Text(
+              "Total Kasus",
+              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+            ),
           ],
         ),
       ),

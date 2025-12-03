@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
-class Page2Controller extends GetxController {
+class ReportController extends GetxController {
   // Observable list untuk aktivitas distribusi
   final RxList<ActivityModel> activities = <ActivityModel>[].obs;
 

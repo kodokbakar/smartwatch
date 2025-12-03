@@ -81,37 +81,31 @@ class AppDrawer extends StatelessWidget {
               ),
               _buildMenuItem(
                 title: 'Laporan',
-                isActive: currentRoute == '/page3',
+                isActive: currentRoute == '/report',
                 onTap: () {
                   Navigator.of(context).pop();
-                  if (currentRoute != '/page3') {
-                    Get.offNamed('/page3');
+                  if (currentRoute != '/report') {
+                    Get.toNamed('/report');
                   }
                 },
               ),
               _buildMenuItem(
                 title: 'Aktivitas Distribusi',
-                isActive: currentRoute == '/page2',
+                isActive: currentRoute == '/distribution-activities',
                 onTap: () {
                   Navigator.of(context).pop();
-                  if (currentRoute != '/page2') {
-                    Get.offNamed('/page2');
+                  if (currentRoute != '/distribution-activities') {
+                    Get.toNamed('/distribution-activities');
                   }
                 },
               ),
               _buildMenuItem(
                 title: 'Aduan Publik',
-                isActive: currentRoute == '/aduan-publik',
+                isActive: currentRoute == '/public-complaint',
                 onTap: () {
                   Navigator.of(context).pop();
-                  if (currentRoute != '/aduan-publik') {
-                    Get.snackbar(
-                      'Info',
-                      'Halaman Aduan Publik belum tersedia',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.blue.shade100,
-                      colorText: Colors.blue.shade900,
-                    );
+                  if (currentRoute != '/public-complaint') {
+                    Get.toNamed('/public-complaint');
                   }
                 },
               ),

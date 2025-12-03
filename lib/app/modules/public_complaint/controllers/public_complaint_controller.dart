@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
-class Page4Controller extends GetxController {
+class PublicComplaintController extends GetxController {
+  final selectedTab = 0.obs;
   // Statistik utama (sesuai kebutuhan UI)
   final RxInt _completedCases = 987.obs;
   final RxInt _totalReports = 1234.obs;
@@ -18,6 +19,10 @@ class Page4Controller extends GetxController {
   void onInit() {
     super.onInit();
     loadData();
+  }
+
+  void changeTab(int index) {
+    selectedTab.value = index;
   }
 
   Future<void> loadData() async {

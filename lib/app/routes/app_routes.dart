@@ -8,9 +8,9 @@ abstract class Routes {
   static const WELCOME = _Paths.WELCOME;
   static const LOGIN = _Paths.LOGIN;
   static const REGISTER = _Paths.REGISTER;
-  static const PAGE2 = _Paths.PAGE2;
-  static const PAGE3 = _Paths.PAGE3;
-  static const PAGE4 = _Paths.PAGE4;
+  static const REPORT = _Paths.REPORT;
+  static const DISTRIBUTION_ACTIVITIES = _Paths.DISTRIBUTION_ACTIVITIES;
+  static const PUBLIC_COMPLAINT = _Paths.PUBLIC_COMPLAINT;
 }
 
 abstract class _Paths {
@@ -20,7 +20,7 @@ abstract class _Paths {
   static const WELCOME = '/welcome';
   static const LOGIN = '/login';
   static const REGISTER = '/register';
-  static const PAGE2 = '/page2';
-  static const PAGE3 = '/page3';
-  static const PAGE4 = '/page4';
+  static const REPORT = '/report';
+  static const DISTRIBUTION_ACTIVITIES = '/distribution-activities';
+  static const PUBLIC_COMPLAINT = '/public-complaint';
 }

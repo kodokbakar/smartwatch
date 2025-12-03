@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/Page2_controller.dart';
+import '../controllers/report_controller.dart';
 import '../../../widgets/app_drawer.dart';
 
-class Page2View extends GetView<Page2Controller> {
-  const Page2View({super.key});
+class ReportView extends GetView<ReportController> {
+  const ReportView({super.key});
 
   @override
   Widget build(BuildContext context) {

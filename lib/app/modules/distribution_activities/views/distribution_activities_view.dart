@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/page3_controller.dart';
+import '../controllers/distribution_activities_controller.dart';
 import '../../../widgets/app_drawer.dart';
 
-class Page3View extends GetView<Page3Controller> {
-  const Page3View({super.key});
+class DistributionActivitiesView
+    extends GetView<DistributionActivitiesController> {
+  const DistributionActivitiesView({super.key});
 
   @override
   Widget build(BuildContext context) {
