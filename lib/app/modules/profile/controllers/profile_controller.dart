@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/material.dart'; 
 
 import '../../../data/models/user_model.dart';
 
@@ -50,8 +51,7 @@ class ProfileController extends GetxController {
   Future<void> logout() async {
     try {
       await _supabase.auth.signOut();
-      // TODO: adjust this route to your login page
-      // Get.offAllNamed(Routes.LOGIN);
+      Get.toNamed('/login');
     } catch (e) {
       Get.snackbar('Logout Failed', e.toString());
     }
@@ -68,7 +68,74 @@ class ProfileController extends GetxController {
   }
 
   void goToAboutApp() {
-    // TODO: navigate to "Tentang Aplikasi" page
-    // Get.toNamed(Routes.ABOUT_APP);
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: SizedBox(
+          width: Get.width * 0.85, // popup lebih besar
+          height: 260,             // tinggi lebih besar
+          child: Stack(
+            children: [
+              // Konten utama dialog
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 8),
+
+                    Center(
+                      child: Text(
+                        'SmartWatch',
+                        style: Get.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    const Center(
+                      child: Text(
+                        'Aplikasi dari rakyat untuk rakyat',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+
+                    const Spacer(),
+
+                    Center(
+                      child: Text(
+                        'Versi 1.0.0',
+                        style: Get.textTheme.bodySmall?.copyWith(
+                          color: Colors.grey,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Tombol X di pojok kanan atas popup
+              Positioned(
+                right: 0,
+                top: 0,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Get.back(),
+                  splashRadius: 20,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: true,
+    );
   }
+
 }
