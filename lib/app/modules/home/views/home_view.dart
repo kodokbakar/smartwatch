@@ -45,7 +45,9 @@ class HomeView extends GetView<HomeController> {
         actions: [
           IconButton(
             icon: Icon(Icons.account_circle_outlined, color: Colors.black87),
-            onPressed: () {},
+            onPressed: () {
+              controller.openProfile();
+            },
           ),
         ],
       ),

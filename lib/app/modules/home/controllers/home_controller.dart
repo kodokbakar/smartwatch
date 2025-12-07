@@ -52,6 +52,10 @@ class HomeController extends GetxController {
     selectedTab.value = index;
   }
 
+  void openProfile() {
+    Get.toNamed('/profile');
+  }
+
   void createNewReport() {
     // Show bottom sheet
     Get.bottomSheet(

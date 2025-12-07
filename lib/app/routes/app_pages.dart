@@ -1,16 +1,19 @@
 import 'package:get/get.dart';
-import 'package:smartwatch/app/modules/distribution_activities/bindings/distribution_activities_binding.dart';
-import 'package:smartwatch/app/modules/distribution_activities/views/distribution_activities_view.dart';
-import 'package:smartwatch/app/modules/public_complaint/views/public_complaint_view.dart';
-import 'package:smartwatch/app/modules/public_complaint/bindings/public_complaint_binding.dart';
-import '../modules/report/bindings/report_binding.dart';
-import '../modules/report/views/report_view.dart';
+
+import '../modules/distribution_activities/bindings/distribution_activities_binding.dart';
+import '../modules/distribution_activities/views/distribution_activities_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
+import '../modules/profile/bindings/profile_binding.dart';
+import '../modules/profile/views/profile_view.dart';
+import '../modules/public_complaint/bindings/public_complaint_binding.dart';
+import '../modules/public_complaint/views/public_complaint_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
+import '../modules/report/bindings/report_binding.dart';
+import '../modules/report/views/report_view.dart';
 import '../modules/splashscreen/bindings/splashscreen_binding.dart';
 import '../modules/splashscreen/views/splashscreen_view.dart';
 import '../modules/welcome/bindings/welcome_binding.dart';
@@ -21,7 +24,7 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.HOME;
+  static const INITIAL = Routes.SPLASHSCREEN;
 
   static final routes = [
     GetPage(
@@ -63,6 +66,11 @@ class AppPages {
       name: _Paths.PUBLIC_COMPLAINT,
       page: () => const PublicComplaintView(),
       binding: PublicComplaintBinding(),
+    ),
+    GetPage(
+      name: _Paths.PROFILE,
+      page: () => const ProfileView(),
+      binding: ProfileBinding(),
     ),
   ];
 }
