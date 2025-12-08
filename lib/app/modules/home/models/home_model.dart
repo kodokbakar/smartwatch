@@ -4,7 +4,7 @@ class Laporan {
   final String deskripsi;
   final String status;
   final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
 
   Laporan({
     required this.id,
@@ -18,9 +18,11 @@ class Laporan {
   factory Laporan.fromJson(Map<String, dynamic> json) {
     final created = DateTime.parse(json['created_at'] as String);
     final updatedRaw = json['updated_at'];
-    final updated = updatedRaw == null
-        ? created
-        : DateTime.parse(updatedRaw as String);
+
+    DateTime? updated;
+    if (updatedRaw != null) {
+      updated = DateTime.parse(updatedRaw as String);
+    }
 
     return Laporan(
       id: json['id'] as String,
@@ -39,20 +41,29 @@ class Laporan {
       'deskripsi': deskripsi,
       'status': status,
       'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
     };
   }
 
-  // Untuk tampilan kartu
+  /// Tanggal efektif untuk statistik:
+  /// - kalau updatedAt != null dan lebih baru dari createdAt → pakai updatedAt
+  /// - kalau updatedAt null atau lebih lama → pakai createdAt
+  DateTime get effectiveDate {
+    if (updatedAt != null && updatedAt!.isAfter(createdAt)) {
+      return updatedAt!;
+    }
+    return createdAt;
+  }
+
   String get kode {
-    // #RPT-<8 karakter pertama id>
     final shortId =
         id.length > 8 ? id.substring(0, 8).toUpperCase() : id.toUpperCase();
     return '#RPT-$shortId';
   }
 
   String get createdLabel => _formatDate(createdAt);
-  String get updatedLabel => _formatDate(updatedAt);
+
+  String get updatedLabel => _formatDate(updatedAt ?? createdAt);
 
   static String _formatDate(DateTime date) {
     const bulan = [
@@ -68,7 +79,7 @@ class Laporan {
       'Sep',
       'Okt',
       'Nov',
-      'Des'
+      'Des',
     ];
     return '${date.day} ${bulan[date.month]} ${date.year}';
   }

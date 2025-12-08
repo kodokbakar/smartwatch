@@ -50,12 +50,15 @@ class HomeView extends GetView<HomeController> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+body: RefreshIndicator(
+        onRefresh: controller.onRefresh, // atau controller.fetchReports
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               // Kasus Tertangani Card
               Obx(
                 () => Container(
@@ -295,6 +298,7 @@ class HomeView extends GetView<HomeController> {
           ),
         ),
       ),
+    ),
     );
   }
 

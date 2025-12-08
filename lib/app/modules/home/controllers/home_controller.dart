@@ -14,19 +14,14 @@ class HomeController extends GetxController {
   final sedangProses = 0.obs;
   final selesai = 0.obs;
 
-  final laporanController = TextEditingController();        // judul
-  final deskripsiController = TextEditingController();      // deskripsi
+  final laporanController = TextEditingController(); // judul
+  final deskripsiController = TextEditingController(); // deskripsi
 
   final isLoading = false.obs;
   final isSubmitting = false.obs;
 
-  // Monthly statistics data (dummy untuk tampilan)
-  final monthlyStats = [
-    {'month': 'Jul', 'value': 80.0},
-    {'month': 'Agu', 'value': 60.0},
-    {'month': 'Sep', 'value': 95.0},
-    {'month': 'Okt', 'value': 85.0},
-  ].obs;
+  // Monthly statistics data (diisi dari Supabase)
+  final monthlyStats = <Map<String, dynamic>>[].obs;
 
   // Laporan dari Supabase
   final laporanList = <Laporan>[].obs;
@@ -65,6 +60,8 @@ class HomeController extends GetxController {
       sedangProses.value =
           list.where((l) => l.status == 'Sedang Proses').length;
       selesai.value = list.where((l) => l.status == 'Selesai').length;
+
+      _recalculateMonthlyStats(list);
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -76,6 +73,11 @@ class HomeController extends GetxController {
     }
   }
 
+  /// Dipakai oleh RefreshIndicator
+  Future<void> onRefresh() async {
+    await fetchReports();
+  }
+
   List<Laporan> get filteredReports {
     if (selectedTab.value == 1) {
       return laporanList.where((l) => l.status == 'Sedang Proses').toList();
@@ -84,6 +86,79 @@ class HomeController extends GetxController {
       return laporanList.where((l) => l.status == 'Selesai').toList();
     }
     return laporanList;
+  }
+
+  void _recalculateMonthlyStats(List<Laporan> list) {
+    if (list.isEmpty) {
+      // fallback: 4 bulan terakhir dari sekarang dengan nilai 0
+      final now = DateTime.now();
+      final stats = List.generate(4, (i) {
+        final d = DateTime(now.year, now.month - (3 - i), 1);
+        return {
+          'month': _monthShortName(d.month),
+          'value': 0.0,
+        };
+      });
+      monthlyStats.assignAll(stats);
+      return;
+    }
+
+    // Hitung jumlah laporan per (tahun, bulan) berdasarkan effectiveDate
+    final Map<int, int> counts = {}; // key = year * 100 + month
+    for (final l in list) {
+      final d = l.effectiveDate;
+      final key = d.year * 100 + d.month;
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+
+    // Ambil maksimal 4 bulan terakhir yang punya data
+    final keys = counts.keys.toList()..sort(); // ascending
+    final last4 =
+        keys.length > 4 ? keys.sublist(keys.length - 4) : keys;
+
+    // cari count terbesar untuk normalisasi tinggi bar
+    int maxCount = 0;
+    for (final k in last4) {
+      final c = counts[k] ?? 0;
+      if (c > maxCount) maxCount = c;
+    }
+    if (maxCount == 0) maxCount = 1;
+    const double maxHeight = 100.0;
+
+    final stats = last4.map((k) {
+      final c = counts[k] ?? 0;
+      final year = k ~/ 100;
+      final month = k % 100;
+      final label = _monthShortName(month);
+      final value = (c / maxCount) * maxHeight; // skala 0–100
+      return {
+        'month': '$label',
+        'value': value,
+        'year': year,
+      };
+    }).toList();
+
+    monthlyStats.assignAll(stats);
+  }
+
+  String _monthShortName(int month) {
+    const months = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
+    ];
+    if (month < 1 || month > 12) return '';
+    return months[month];
   }
 
   // === UI actions ===
@@ -276,6 +351,8 @@ class HomeController extends GetxController {
       totalLaporan.value++;
       totalKasus.value++;
       sedangProses.value++;
+
+      _recalculateMonthlyStats(laporanList);
 
       Get.back();
       Get.snackbar(
