@@ -10,6 +10,8 @@ import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
+import '../modules/profile_detail/bindings/profile_detail_binding.dart';
+import '../modules/profile_detail/views/profile_detail_view.dart';
 import '../modules/public_complaint/bindings/public_complaint_binding.dart';
 import '../modules/public_complaint/views/public_complaint_view.dart';
 import '../modules/register/bindings/register_binding.dart';
@@ -78,6 +80,11 @@ class AppPages {
       name: _Paths.HELPER,
       page: () => const HelperView(),
       binding: HelperBinding(),
+    ),
+    GetPage(
+      name: _Paths.PROFILE_DETAIL,
+      page: () => const ProfileDetailView(),
+      binding: ProfileDetailBinding(),
     ),
   ];
 }

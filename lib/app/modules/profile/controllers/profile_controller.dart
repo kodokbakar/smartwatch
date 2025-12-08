@@ -57,9 +57,8 @@ class ProfileController extends GetxController {
     }
   }
 
-  void goToProfileDetail() {
-    // TODO: navigate to "Tentang Profil" page
-    // Get.toNamed(Routes.PROFILE_DETAIL);
+  void goToProfileDetail() {  
+    Get.toNamed('/profile_detail');
   }
 
   void goToHelp() {
