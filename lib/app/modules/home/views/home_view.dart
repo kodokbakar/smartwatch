@@ -19,8 +19,9 @@ class HomeView extends GetView<HomeController> {
             showGeneralDialog(
               context: context,
               barrierDismissible: true,
-              barrierLabel:
-                  MaterialLocalizations.of(context).modalBarrierDismissLabel,
+              barrierLabel: MaterialLocalizations.of(
+                context,
+              ).modalBarrierDismissLabel,
               barrierColor: Colors.black54,
               transitionDuration: const Duration(milliseconds: 300),
               pageBuilder: (context, animation, secondaryAnimation) {
@@ -31,26 +32,28 @@ class HomeView extends GetView<HomeController> {
               },
               transitionBuilder:
                   (context, animation, secondaryAnimation, child) {
-                return SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(-1, 0),
-                    end: Offset.zero,
-                  ).animate(animation),
-                  child: child,
-                );
-              },
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(-1, 0),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
             );
           },
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.account_circle_outlined,
-                color: Colors.black87),
+            icon: const Icon(
+              Icons.account_circle_outlined,
+              color: Colors.black87,
+            ),
             onPressed: controller.openProfile,
           ),
         ],
       ),
-body: RefreshIndicator(
+      body: RefreshIndicator(
         onRefresh: controller.onRefresh, // atau controller.fetchReports
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -59,214 +62,212 @@ body: RefreshIndicator(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-              // Kasus Tertangani Card
-              Obx(
-                () => Container(
+                // Kasus Tertangani Card
+                Obx(
+                  () => Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF5F33E1), Color(0xFF5F33E1)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          controller.selesai.value.toString().replaceAllMapped(
+                            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+                            (Match m) => '${m[1]},',
+                          ),
+                          style: const TextStyle(
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: const [
+                            Text(
+                              'Kasus',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Text(
+                              'Tertangani',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Statistik Bulanan Card
+                Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF5F33E1), Color(0xFF5F33E1)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        controller.totalKasus.value
-                            .toString()
-                            .replaceAllMapped(
-                              RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                              (Match m) => '${m[1]},',
-                            ),
-                        style: const TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: const [
-                          Text(
-                            'Kasus',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            'Tertangani',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Statistik Bulanan Card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Statistik Bulanan',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Obx(
-                      () => Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: controller.monthlyStats.map((stat) {
-                          return Column(
-                            children: [
-                              Container(
-                                width: 60,
-                                height: stat['value'] as double,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF0019FF),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                stat['month'] as String,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                            ],
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Status Cards Row
-              Obx(
-                () => Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatusCard(
-                        icon: Icons.description_outlined,
-                        count: controller.totalLaporan.value,
-                        label: 'Total Laporan',
-                        color: Colors.blue.shade100,
-                        iconColor: Colors.blue.shade700,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildStatusCard(
-                        icon: Icons.pending_outlined,
-                        count: controller.sedangProses.value,
-                        label: 'Sedang Proses',
-                        color: Colors.yellow.shade100,
-                        iconColor: Colors.yellow.shade700,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildStatusCard(
-                        icon: Icons.check_circle_outline,
-                        count: controller.selesai.value,
-                        label: 'Selesai',
-                        color: Colors.green.shade100,
-                        iconColor: Colors.green.shade700,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Tab Buttons
-              Obx(
-                () => Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(child: _buildTabButton('Semua', 0)),
-                      Expanded(child: _buildTabButton('Sedang Proses', 1)),
-                      Expanded(child: _buildTabButton('Selesai', 2)),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Create Report Button
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: controller.createNewReport,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red.shade500,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.add, size: 24),
-                      SizedBox(width: 8),
-                      Text(
-                        'Buat Laporan Baru',
+                      const Text(
+                        'Statistik Bulanan',
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Obx(
+                        () => Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: controller.monthlyStats.map((stat) {
+                            return Column(
+                              children: [
+                                Container(
+                                  width: 60,
+                                  height: stat['value'] as double,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF0019FF),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  stat['month'] as String,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            );
+                          }).toList(),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              // Reports List
-              Obx(
-                () {
+                // Status Cards Row
+                Obx(
+                  () => Row(
+                    children: [
+                      Expanded(
+                        child: _buildStatusCard(
+                          icon: Icons.description_outlined,
+                          count: controller.totalLaporan.value,
+                          label: 'Total Laporan',
+                          color: Colors.blue.shade100,
+                          iconColor: Colors.blue.shade700,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildStatusCard(
+                          icon: Icons.pending_outlined,
+                          count: controller.sedangProses.value,
+                          label: 'Sedang Proses',
+                          color: Colors.yellow.shade100,
+                          iconColor: Colors.yellow.shade700,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildStatusCard(
+                          icon: Icons.check_circle_outline,
+                          count: controller.selesai.value,
+                          label: 'Selesai',
+                          color: Colors.green.shade100,
+                          iconColor: Colors.green.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Tab Buttons
+                Obx(
+                  () => Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(child: _buildTabButton('Semua', 0)),
+                        Expanded(child: _buildTabButton('Sedang Proses', 1)),
+                        Expanded(child: _buildTabButton('Selesai', 2)),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Create Report Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: controller.createNewReport,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red.shade500,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.add, size: 24),
+                        SizedBox(width: 8),
+                        Text(
+                          'Buat Laporan Baru',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Reports List
+                Obx(() {
                   final reports = controller.filteredReports;
                   if (controller.isLoading.value && reports.isEmpty) {
                     return const Center(child: CircularProgressIndicator());
@@ -291,14 +292,13 @@ body: RefreshIndicator(
                       return _buildReportCard(laporan);
                     },
                   );
-                },
-              ),
-              const SizedBox(height: 20),
-            ],
+                }),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 
@@ -328,8 +328,7 @@ body: RefreshIndicator(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration:
-                BoxDecoration(color: color, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             child: Icon(icon, color: iconColor, size: 24),
           ),
           const SizedBox(height: 12),
@@ -367,10 +366,8 @@ body: RefreshIndicator(
             label,
             style: TextStyle(
               fontSize: 13,
-              color:
-                  isSelected ? Colors.blue.shade700 : Colors.grey.shade600,
-              fontWeight:
-                  isSelected ? FontWeight.w600 : FontWeight.normal,
+              color: isSelected ? Colors.blue.shade700 : Colors.grey.shade600,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
         ),
@@ -404,12 +401,13 @@ body: RefreshIndicator(
               children: [
                 Text(
                   laporan.kode,
-                  style:
-                      TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: isCompleted
                         ? Colors.green.shade100
@@ -454,8 +452,7 @@ body: RefreshIndicator(
               children: [
                 Text(
                   'Dibuat: ',
-                  style:
-                      TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                 ),
                 Text(
                   laporan.createdLabel,
@@ -472,8 +469,7 @@ body: RefreshIndicator(
               children: [
                 Text(
                   'Update: ',
-                  style:
-                      TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                 ),
                 Text(
                   laporan.updatedLabel,
