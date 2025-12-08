@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../models/home_model.dart';
 
 class HomeController extends GetxController {
+  final SupabaseClient _supabase = Supabase.instance.client;
+
   final selectedTab = 0.obs;
-  final totalKasus = 1247.obs;
-  final totalLaporan = 2.obs;
-  final sedangProses = 1.obs;
-  final selesai = 1.obs;
 
-  final keluhanController = TextEditingController();
-  final deskripsiController = TextEditingController();
+  final totalKasus = 0.obs;
+  final totalLaporan = 0.obs;
+  final sedangProses = 0.obs;
+  final selesai = 0.obs;
 
-  // Monthly statistics data
+  final laporanController = TextEditingController();        // judul
+  final deskripsiController = TextEditingController();      // deskripsi
+
+  final isLoading = false.obs;
+  final isSubmitting = false.obs;
+
+  // Monthly statistics data (dummy untuk tampilan)
   final monthlyStats = [
     {'month': 'Jul', 'value': 80.0},
     {'month': 'Agu', 'value': 60.0},
@@ -19,34 +28,65 @@ class HomeController extends GetxController {
     {'month': 'Okt', 'value': 85.0},
   ].obs;
 
-  // Sample reports data
-  final reports = [
-    {
-      'id': '#RPT-2025-001',
-      'status': 'Selesai',
-      'title': 'Dugaan Korupsi Pengadaan ATK Dinas Pendidikan',
-      'description':
-          'Laporan Mengenai Pengadaan alat tulis kantor dengan nilai yang tidak wajar di Dinas Pendidikan Kota Bogor',
-      'date': '7 Juli 2025',
-      'update': '12 Agustus 2025',
-    },
-    {
-      'id': '#RPT-2025-002',
-      'status': 'Sedang Proses',
-      'title': 'Penyidikan Korupsi Pengadaan Alat Pertanian',
-      'description':
-          'Laporan mengenai dugaan korupsi dalam pengadaan alat pertanian di Dinas Pertanian',
-      'date': '15 Juli 2025',
-      'update': '20 Oktober 2025',
-    },
-  ].obs;
+  // Laporan dari Supabase
+  final laporanList = <Laporan>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchReports();
+  }
 
   @override
   void onClose() {
-    keluhanController.dispose();
+    laporanController.dispose();
     deskripsiController.dispose();
     super.onClose();
   }
+
+  // === DATA ===
+
+  Future<void> fetchReports() async {
+    isLoading.value = true;
+    try {
+      final data = await _supabase
+          .from('laporan')
+          .select()
+          .order('created_at', ascending: false);
+
+      final list = (data as List)
+          .map((row) => Laporan.fromJson(row as Map<String, dynamic>))
+          .toList();
+
+      laporanList.assignAll(list);
+
+      totalLaporan.value = list.length;
+      totalKasus.value = list.length; // bisa diubah kalau ada metrik lain
+      sedangProses.value =
+          list.where((l) => l.status == 'Sedang Proses').length;
+      selesai.value = list.where((l) => l.status == 'Selesai').length;
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Gagal memuat laporan: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  List<Laporan> get filteredReports {
+    if (selectedTab.value == 1) {
+      return laporanList.where((l) => l.status == 'Sedang Proses').toList();
+    }
+    if (selectedTab.value == 2) {
+      return laporanList.where((l) => l.status == 'Selesai').toList();
+    }
+    return laporanList;
+  }
+
+  // === UI actions ===
 
   void changeTab(int index) {
     selectedTab.value = index;
@@ -57,11 +97,10 @@ class HomeController extends GetxController {
   }
 
   void createNewReport() {
-    // Show bottom sheet
     Get.bottomSheet(
       _buildReportBottomSheet(),
       backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
@@ -77,7 +116,7 @@ class HomeController extends GetxController {
         bottom: MediaQuery.of(Get.context!).viewInsets.bottom,
       ),
       child: Container(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,13 +125,13 @@ class HomeController extends GetxController {
             Row(
               children: [
                 IconButton(
-                  icon: Icon(Icons.arrow_back_ios, size: 20),
+                  icon: const Icon(Icons.arrow_back_ios, size: 20),
                   onPressed: () => Get.back(),
                   padding: EdgeInsets.zero,
-                  constraints: BoxConstraints(),
+                  constraints: const BoxConstraints(),
                 ),
-                SizedBox(width: 12),
-                Text(
+                const SizedBox(width: 12),
+                const Text(
                   'Laporan Baru',
                   style: TextStyle(
                     fontSize: 20,
@@ -102,17 +141,18 @@ class HomeController extends GetxController {
                 ),
               ],
             ),
-            SizedBox(height: 24),
-            // Keluhan field
-            Text(
-              'Keluhan:',
+            const SizedBox(height: 24),
+
+            // Field: Laporan (judul)
+            const Text(
+              'Laporan',
               style: TextStyle(fontSize: 14, color: Colors.black87),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             TextField(
-              controller: keluhanController,
+              controller: laporanController,
               decoration: InputDecoration(
-                hintText: '',
+                hintText: 'Laporan',
                 hintStyle: TextStyle(color: Colors.grey.shade400),
                 border: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.grey.shade300),
@@ -123,21 +163,23 @@ class HomeController extends GetxController {
                 focusedBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue.shade700),
                 ),
-                contentPadding: EdgeInsets.symmetric(vertical: 8),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 8),
               ),
             ),
-            SizedBox(height: 20),
-            // Deskripsi field
-            Text(
-              'Deskripsi laporan:',
+            const SizedBox(height: 20),
+
+            // Field: Deskripsi Laporan
+            const Text(
+              'Deskripsi Laporan',
               style: TextStyle(fontSize: 14, color: Colors.black87),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             TextField(
               controller: deskripsiController,
               maxLines: 5,
               decoration: InputDecoration(
-                hintText: '',
+                hintText: 'Deskripsi Laporan',
                 hintStyle: TextStyle(color: Colors.grey.shade400),
                 border: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.grey.shade300),
@@ -148,39 +190,58 @@ class HomeController extends GetxController {
                 focusedBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue.shade700),
                 ),
-                contentPadding: EdgeInsets.symmetric(vertical: 8),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 8),
               ),
             ),
-            SizedBox(height: 32),
-            // Simpan button
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: submitReport,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey.shade400,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
+            const SizedBox(height: 32),
+
+            // Submit button
+            Obx(
+              () => SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: isSubmitting.value ? null : submitReport,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey.shade400,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    elevation: 0,
                   ),
-                  elevation: 0,
-                ),
-                child: Text(
-                  'Simpan',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  child: isSubmitting.value
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          'Submit',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
           ],
         ),
       ),
     );
   }
 
-  void submitReport() {
-    if (keluhanController.text.isEmpty || deskripsiController.text.isEmpty) {
+  Future<void> submitReport() async {
+    final judul = laporanController.text.trim();
+    final deskripsi = deskripsiController.text.trim();
+
+    if (judul.isEmpty || deskripsi.isEmpty) {
       Get.snackbar(
         'Error',
         'Mohon isi semua field',
@@ -191,23 +252,56 @@ class HomeController extends GetxController {
       return;
     }
 
-    // Success
-    Get.back();
-    Get.snackbar(
-      'Berhasil',
-      'Laporan berhasil disimpan',
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.green.shade400,
-      colorText: Colors.white,
-    );
+    try {
+      isSubmitting.value = true;
 
-    // Clear fields
-    keluhanController.clear();
-    deskripsiController.clear();
+      final authUser = _supabase.auth.currentUser;
+      final insertData = {
+        'judul': judul,
+        'deskripsi': deskripsi,
+        'status': 'Sedang Proses',
+        'user_id': authUser?.id,
+      };
+
+      final inserted = await _supabase
+          .from('laporan')
+          .insert(insertData)
+          .select()
+          .single();
+
+      final newLaporan =
+          Laporan.fromJson(inserted as Map<String, dynamic>);
+      laporanList.insert(0, newLaporan);
+
+      totalLaporan.value++;
+      totalKasus.value++;
+      sedangProses.value++;
+
+      Get.back();
+      Get.snackbar(
+        'Berhasil',
+        'Laporan berhasil disimpan',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.green.shade400,
+        colorText: Colors.white,
+      );
+
+      laporanController.clear();
+      deskripsiController.clear();
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Gagal menyimpan laporan: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade400,
+        colorText: Colors.white,
+      );
+    } finally {
+      isSubmitting.value = false;
+    }
   }
 
-  void openReportDetail(Map<String, dynamic> report) {
-    // Navigate to report detail page
-    Get.toNamed('/report-detail', arguments: report);
+  void openReportDetail(Laporan laporan) {
+    Get.toNamed('/report-detail', arguments: laporan);
   }
 }

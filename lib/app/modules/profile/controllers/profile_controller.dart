@@ -58,7 +58,7 @@ class ProfileController extends GetxController {
   }
 
   void goToProfileDetail() {  
-    Get.toNamed('/profile_detail');
+    Get.toNamed('/profile-detail');
   }
 
   void goToHelp() {
