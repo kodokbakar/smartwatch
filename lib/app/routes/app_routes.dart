@@ -11,6 +11,9 @@ abstract class Routes {
   static const REPORT = _Paths.REPORT;
   static const DISTRIBUTION_ACTIVITIES = _Paths.DISTRIBUTION_ACTIVITIES;
   static const PUBLIC_COMPLAINT = _Paths.PUBLIC_COMPLAINT;
+  static const PROFILE = _Paths.PROFILE;
+  static const HELPER = _Paths.HELPER;
+  static const PROFILE_DETAIL = _Paths.PROFILE_DETAIL;
 }
 
 abstract class _Paths {
@@ -23,4 +26,7 @@ abstract class _Paths {
   static const REPORT = '/report';
   static const DISTRIBUTION_ACTIVITIES = '/distribution-activities';
   static const PUBLIC_COMPLAINT = '/public-complaint';
+  static const PROFILE = '/profile';
+  static const HELPER = '/helper';
+  static const PROFILE_DETAIL = '/profile-detail';
 }
