@@ -63,8 +63,7 @@ class ProfileController extends GetxController {
   }
 
   void goToHelp() {
-    // TODO: navigate to "Bantuan" page
-    // Get.toNamed(Routes.HELP);
+    Get.toNamed('/helper');
   }
 
   void goToAboutApp() {
