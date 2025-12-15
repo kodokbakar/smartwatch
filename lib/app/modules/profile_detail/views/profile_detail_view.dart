@@ -10,6 +10,66 @@ class ProfileDetailView extends GetView<ProfileDetailController> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    // -------------------------------------------------------------------------
+    // UI helper: konsisten untuk style field "kotak".
+    // Ini memudahkan jika nanti butuh ubah radius, padding, atau warna border.
+    // -------------------------------------------------------------------------
+    InputDecoration _squareFieldDecoration({
+      required String label,
+      required String hint,
+      Widget? prefixIcon,
+    }) {
+      return InputDecoration(
+        labelText: label,
+        hintText: hint,
+        prefixIcon: prefixIcon,
+        isDense: true,
+        filled: true,
+        fillColor: Colors.grey.shade50,
+
+        // Kotak (square-ish). Jika mau benar-benar siku (tajam),
+        // ubah radius jadi 0.
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.green.shade600, width: 1.4),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
+      );
+    }
+
+    // -------------------------------------------------------------------------
+    // UI helper: wrapper card agar section form terlihat "clean".
+    // -------------------------------------------------------------------------
+    Widget _sectionCard({required Widget child}) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: child,
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -40,8 +100,8 @@ class ProfileDetailView extends GetView<ProfileDetailController> {
               return Center(
                 child: Text(
                   error,
-                  style: theme.textTheme.bodyMedium
-                      ?.copyWith(color: Colors.red),
+                  style:
+                      theme.textTheme.bodyMedium?.copyWith(color: Colors.red),
                   textAlign: TextAlign.center,
                 ),
               );
@@ -52,110 +112,99 @@ class ProfileDetailView extends GetView<ProfileDetailController> {
               children: [
                 const SizedBox(height: 24),
 
-                // Avatar di tengah
+                // Avatar di tengah (sementara placeholder image)
                 Center(
                   child: CircleAvatar(
                     radius: 48,
-                    backgroundImage: const NetworkImage(
-                      'https://placehold.co/400',
-                    ),
+                    backgroundImage: const NetworkImage('https://placehold.co/400'),
                     backgroundColor: Colors.grey.shade200,
                   ),
                 ),
 
-                const SizedBox(height: 48),
+                const SizedBox(height: 24),
 
-                // NAMA (editable)
+                // -----------------------------------------------------------------
+                // Form section: dibungkus card agar layout lebih rapi dan modern.
+                // -----------------------------------------------------------------
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Nama :',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: _sectionCard(
+                    child: Column(
+                      children: [
+                        // NAMA (editable)
+                        TextField(
                           controller: controller.nameController,
-                          decoration: const InputDecoration(
-                            isDense: true,
-                            border: InputBorder.none,
-                            hintText: 'Nama',
+                          textInputAction: TextInputAction.next,
+                          decoration: _squareFieldDecoration(
+                            label: 'Nama',
+                            hint: 'Masukkan nama lengkap',
+                            prefixIcon: const Icon(Icons.badge_outlined),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
+                        const SizedBox(height: 12),
 
-                // USERNAME (editable)
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Username :',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
+                        // USERNAME (editable)
+                        TextField(
                           controller: controller.usernameController,
-                          decoration: const InputDecoration(
-                            isDense: true,
-                            border: InputBorder.none,
-                            hintText: 'Username',
+                          textInputAction: TextInputAction.done,
+                          decoration: _squareFieldDecoration(
+                            label: 'Username',
+                            hint: 'Masukkan username',
+                            prefixIcon: const Icon(Icons.alternate_email),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
+                        const SizedBox(height: 16),
 
-                // STATUS (hanya User, tidak bisa diubah)
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Status :',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'User',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: Colors.grey[700],
+                        // STATUS (read-only)
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            children: [
+                              Text(
+                                'Status',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: Colors.grey.shade700,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(999),
+                                  border: Border.all(color: Colors.grey.shade300),
+                                ),
+                                child: Text(
+                                  'User',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: Colors.grey.shade800,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-                const Divider(height: 1),
 
                 const Spacer(),
 
-                // Tombol Update
+                // Tombol Update (tetap ada)
                 Padding(
-                  padding:
-                      const EdgeInsets.fromLTRB(24, 0, 24, 32),
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
                   child: Obx(
                     () {
                       final isUpdating = controller.isUpdating.value;
 
                       return GestureDetector(
-                        onTap: isUpdating
-                            ? null
-                            : controller.updateProfile,
+                        onTap: isUpdating ? null : controller.updateProfile,
                         child: Container(
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(
@@ -178,9 +227,7 @@ class ProfileDetailView extends GetView<ProfileDetailController> {
                                   )
                                 : Text(
                                     'Update',
-                                    style: theme
-                                        .textTheme.titleMedium
-                                        ?.copyWith(
+                                    style: theme.textTheme.titleMedium?.copyWith(
                                       color: Colors.green,
                                       fontWeight: FontWeight.w600,
                                     ),
