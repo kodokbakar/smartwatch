@@ -19,9 +19,8 @@ class ReportView extends GetView<ReportController> {
             showGeneralDialog(
               context: context,
               barrierDismissible: true,
-              barrierLabel: MaterialLocalizations.of(
-                context,
-              ).modalBarrierDismissLabel,
+              barrierLabel:
+              MaterialLocalizations.of(context).modalBarrierDismissLabel,
               barrierColor: Colors.black54,
               transitionDuration: Duration(milliseconds: 300),
               pageBuilder: (context, animation, secondaryAnimation) {
@@ -32,14 +31,14 @@ class ReportView extends GetView<ReportController> {
               },
               transitionBuilder:
                   (context, animation, secondaryAnimation, child) {
-                    return SlideTransition(
-                      position: Tween<Offset>(
-                        begin: Offset(-1, 0),
-                        end: Offset.zero,
-                      ).animate(animation),
-                      child: child,
-                    );
-                  },
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: Offset(-1, 0),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                );
+              },
             );
           },
         ),
@@ -67,9 +66,11 @@ class ReportView extends GetView<ReportController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Summary Cards Grid
+                  // =======================
+                  // SUMMARY CARDS
+                  // =======================
                   Obx(
-                    () => GridView.count(
+                        () => GridView.count(
                       crossAxisCount: 2,
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
@@ -91,18 +92,26 @@ class ReportView extends GetView<ReportController> {
                           'Total Proyek',
                           controller.totalProyek.value.toString(),
                           Color(0xFF8B7EF7),
+                          onTap: () {
+                            Get.toNamed('/public-complaint'); // ✅ ROUTE BARU
+                          },
                         ),
                         _buildSummaryCard(
-                          'Total Dana',
-                          controller.totalDana.value,
+                          'Total Distribusi',
+                          controller.totalDistribusi.value.toString(),
                           Color(0xFF8B7EF7),
+                          onTap: () {
+                            Get.toNamed('/distribution-activities'); // ✅ ROUTE BARU
+                          },
                         ),
                       ],
                     ),
                   ),
                   SizedBox(height: 24),
 
-                  // Distribution Activity Title
+                  // =======================
+                  // ACTIVITY TITLE
+                  // =======================
                   Text(
                     'Aktivitas Distribusi Terkini',
                     style: TextStyle(
@@ -113,7 +122,9 @@ class ReportView extends GetView<ReportController> {
                   ),
                   SizedBox(height: 16),
 
-                  // Distribution Activity List
+                  // =======================
+                  // ACTIVITY LIST
+                  // =======================
                   Obx(() {
                     if (controller.activities.isEmpty) {
                       return Container(
@@ -162,49 +173,63 @@ class ReportView extends GetView<ReportController> {
     );
   }
 
-  Widget _buildSummaryCard(String title, String value, Color color) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [color, color.withOpacity(0.85)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+  // =======================
+  // SUMMARY CARD (CLICKABLE)
+  // =======================
+  Widget _buildSummaryCard(
+      String title,
+      String value,
+      Color color, {
+        VoidCallback? onTap,
+      }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF5F33E1), Color(0xFF8B7EF7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.3),
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.3),
-            blurRadius: 8,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+            Text(
+              value,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
+  // =======================
+  // ACTIVITY CARD
+  // =======================
   Widget _buildActivityCard(ActivityModel activity) {
     Color statusColor;
 
@@ -324,7 +349,10 @@ class ReportView extends GetView<ReportController> {
               alignment: Alignment.centerRight,
               child: Text(
                 '${activity.progress.toInt()}% Selesai',
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 12,
+                ),
               ),
             ),
           ],
