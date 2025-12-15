@@ -32,14 +32,14 @@ class PublicComplaintView extends GetView<PublicComplaintController> {
               },
               transitionBuilder:
                   (context, animation, secondaryAnimation, child) {
-                    return SlideTransition(
-                      position: Tween<Offset>(
-                        begin: Offset(-1, 0),
-                        end: Offset.zero,
-                      ).animate(animation),
-                      child: child,
-                    );
-                  },
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: Offset(-1, 0),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                );
+              },
             );
           },
         ),
@@ -54,109 +54,106 @@ class PublicComplaintView extends GetView<PublicComplaintController> {
           ),
         ],
       ),
-
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // ============================
-            // TOP FILTER (BULAN INI / 3 BULAN / TAHUN)
-            // ============================
-            SizedBox(height: 10),
-            Obx(
-              () => Container(
-                padding: EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(25),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ============================
+              // TOP FILTER (BULAN INI / 3 BULAN / TAHUN)
+              // ============================
+              SizedBox(height: 16),
+              Obx(
+                    () => Container(
+                  padding: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(child: _buildTabButton('Bulan Ini', 0)),
+                      Expanded(child: _buildTabButton('3 Bulan Terakhir', 1)),
+                      Expanded(child: _buildTabButton('Tahun Ini', 2)),
+                    ],
+                  ),
                 ),
-                child: Row(
+              ),
+
+              SizedBox(height: 20),
+              // ============================
+              // TOP PURPLE CARDS
+              // ============================
+              Obx(
+                    () => Row(
                   children: [
-                    Expanded(child: _buildTabButton('Bulan Ini', 0)),
-                    Expanded(child: _buildTabButton('3 Bulan Terakhir', 1)),
-                    Expanded(child: _buildTabButton('Tahun Ini', 2)),
+                    Expanded(
+                      child: _purpleCard(
+                        title: "Kasus Selesai",
+                        value: controller.completedCases.value.toString(),
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: _purpleCard(
+                        title: "Total Aduan Publik",
+                        value: controller.totalReports.value.toString(),
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ),
 
-            SizedBox(height: 20),
-            // ============================
-            // TOP PURPLE CARDS
-            // ============================
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _purpleCard(
-                      title: "Kasus Selesai",
-                      value: controller.completedCases.toString(),
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: _purpleCard(
-                      title: "Total Aduan Publik",
-                      value: controller.totalReports.toString(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+              SizedBox(height: 24),
 
-            SizedBox(height: 24),
-
-            // ============================
-            // CATEGORY SECTION
-            // ============================
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
+              // ============================
+              // CATEGORY SECTION
+              // ============================
+              Text(
                 "Aduan Berdasarkan Kategori",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
               ),
-            ),
 
-            SizedBox(height: 12),
+              SizedBox(height: 12),
 
-            _categoryCard(),
+              _categoryCard(),
 
-            SizedBox(height: 28),
+              SizedBox(height: 28),
 
-            // ============================
-            // TRANSPARENCY TREND
-            // ============================
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
+              // ============================
+              // TRANSPARENCY TREND
+              // ============================
+              Text(
                 "Tren Transparansi",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
               ),
-            ),
 
-            SizedBox(height: 12),
+              SizedBox(height: 12),
 
-            _chartPlaceholder(),
+              _trendChart(),
 
-            SizedBox(height: 28),
+              SizedBox(height: 28),
 
-            // ============================
-            // STATUS PENYELESAIAN
-            // ============================
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
+              // ============================
+              // STATUS PENYELESAIAN
+              // ============================
+              Text(
                 "Status Penyelesaian Kasus",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
               ),
-            ),
 
-            SizedBox(height: 12),
+              SizedBox(height: 12),
 
-            _statusCard(controller.completedCases.toString()),
+              Obx(
+                    () => _statusCard(
+                  controller.completedCases.value.toString(),
+                ),
+              ),
 
-            SizedBox(height: 30),
-          ],
+              SizedBox(height: 30),
+            ],
+          ),
         ),
       ),
     );
@@ -170,7 +167,7 @@ class PublicComplaintView extends GetView<PublicComplaintController> {
     return GestureDetector(
       onTap: () => controller.changeTab(index),
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 5),
+        padding: EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: isSelected ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(22),
@@ -179,7 +176,7 @@ class PublicComplaintView extends GetView<PublicComplaintController> {
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               color: isSelected ? Colors.blue.shade700 : Colors.grey.shade600,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),
@@ -220,11 +217,10 @@ class PublicComplaintView extends GetView<PublicComplaintController> {
               ),
             ),
             SizedBox(height: 8),
-            // flexible + fittedbox prevents overflow with large text or accessibility font scaling
             Flexible(
               child: FittedBox(
                 fit: BoxFit.scaleDown,
-                alignment: Alignment.center,
+                alignment: Alignment.centerLeft,
                 child: Text(
                   value,
                   style: TextStyle(
@@ -245,9 +241,8 @@ class PublicComplaintView extends GetView<PublicComplaintController> {
   // CATEGORY CARD
   // ============================
   Widget _categoryCard() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
+    return Obx(
+          () => Container(
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -262,24 +257,54 @@ class PublicComplaintView extends GetView<PublicComplaintController> {
         ),
         child: Column(
           children: [
-            _categoryItem("Penyalahgunaan Wewenang", Colors.blue, 0.95),
+            _categoryItem(
+              "Penyalahgunaan Wewenang",
+              Colors.blue,
+              controller.getCategoryPercentage(
+                  controller.penyalahgunaanWewenang.value),
+              controller.penyalahgunaanWewenang.value,
+            ),
             SizedBox(height: 18),
-            _categoryItem("Diskriminasi", Colors.green, 0.75),
+            _categoryItem(
+              "Diskriminasi",
+              Colors.green,
+              controller.getCategoryPercentage(controller.diskriminasi.value),
+              controller.diskriminasi.value,
+            ),
             SizedBox(height: 18),
-            _categoryItem("Kekerasan Berlebihan", Colors.red, 0.55),
+            _categoryItem(
+              "Kekerasan Berlebihan",
+              Colors.red,
+              controller.getCategoryPercentage(
+                  controller.kekerasanBerlebihan.value),
+              controller.kekerasanBerlebihan.value,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _categoryItem(String label, Color color, double value) {
+  Widget _categoryItem(String label, Color color, double value, int count) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            Text(
+              '$count kasus',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ],
         ),
         SizedBox(height: 8),
         ClipRRect(
@@ -296,45 +321,15 @@ class PublicComplaintView extends GetView<PublicComplaintController> {
   }
 
   // ============================
-  // CHART PLACEHOLDER
+  // TREND CHART
   // ============================
-  Widget _chartPlaceholder() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        height: 190,
-        decoration: BoxDecoration(
-          color: Color(0xffe8f1ff),
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12.withOpacity(0.08),
-              blurRadius: 12,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            "Chart Placeholder",
-            style: TextStyle(color: Colors.black38),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ============================
-  // STATUS CARD
-  // ============================
-  Widget _statusCard(String total) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 28),
+  Widget _trendChart() {
+    return Obx(
+          () => Container(
+        padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
               color: Colors.black12.withOpacity(0.08),
@@ -345,21 +340,126 @@ class PublicComplaintView extends GetView<PublicComplaintController> {
         ),
         child: Column(
           children: [
-            Text(
-              total,
-              style: TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+            // Chart
+            SizedBox(
+              height: 200,
+              child: controller.trendData.isEmpty
+                  ? Center(
+                child: Text(
+                  'Tidak ada data',
+                  style: TextStyle(color: Colors.grey.shade400),
+                ),
+              )
+                  : Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: controller.trendData.map((data) {
+                  // Calculate max value for scaling
+                  final maxValue = controller.trendData
+                      .map((e) => e.value)
+                      .reduce((a, b) => a > b ? a : b);
+
+                  return _buildBar(
+                    data.label,
+                    data.value,
+                    maxValue,
+                    130, // max height for bar
+                  );
+                }).toList(),
               ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              "Total Kasus",
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildBar(String label, double value, double maxValue, double maxHeight) {
+    final height = (value / maxValue) * maxHeight;
+    final isYearly = controller.selectedTab.value == 2;
+
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: isYearly ? 1 : 4),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Value label
+            Text(
+              value.toInt().toString(),
+              style: TextStyle(
+                fontSize: isYearly ? 9 : 11,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade700,
+              ),
+            ),
+            SizedBox(height: 2),
+            // Bar
+            Container(
+              width: double.infinity,
+              height: height,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF5F33E1), Color(0xFF8B7EF7)],
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                ),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            SizedBox(height: 4),
+            // Label
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: isYearly ? 8 : 10,
+                color: Colors.grey.shade600,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================
+  // STATUS CARD
+  // ============================
+  Widget _statusCard(String total) {
+    return Container(
+      alignment: Alignment.center,
+      padding: EdgeInsets.symmetric(vertical: 28),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12.withOpacity(0.08),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            total,
+            style: TextStyle(
+              fontSize: 40,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            "Total Kasus Selesai",
+            style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+          ),
+        ],
       ),
     );
   }
