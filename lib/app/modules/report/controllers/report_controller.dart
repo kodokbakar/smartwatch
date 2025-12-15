@@ -9,7 +9,7 @@ class ReportController extends GetxController {
   final RxString totalAnggaran = 'Rp. 0'.obs;
   final RxString totalRealisasi = 'Rp. 0'.obs;
   final RxInt totalProyek = 0.obs;
-  final RxString totalDana = 'Rp. 0'.obs;
+  final RxInt totalDistribusi = 0.obs;
 
   // Loading state
   final RxBool isLoading = false.obs;
@@ -33,7 +33,7 @@ class ReportController extends GetxController {
       totalAnggaran.value = 'Rp. 2.5 T';
       totalRealisasi.value = 'Rp. 1.9 T';
       totalProyek.value = 125;
-      totalDana.value = 'Rp. 1.2 M';
+      totalDistribusi.value = 247;
 
       // Set activities data
       activities.value = [
