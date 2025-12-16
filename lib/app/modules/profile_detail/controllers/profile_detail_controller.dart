@@ -2,24 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/models/user_model.dart';
+import '../../../data/picture/minidenticon_generator.dart';
 
 class ProfileDetailController extends GetxController {
-  // ---------------------------------------------------------------------------
-  // Supabase client untuk operasi read/update profil user.
-  // Pastikan Supabase.initialize sudah dilakukan di main.dart.
-  // ---------------------------------------------------------------------------
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  // State utama untuk UI (GetX reactive).
   final user = Rxn<AppUser>();
   final isLoading = false.obs;
   final isUpdating = false.obs;
   final errorMessage = RxnString();
 
-  // Controller untuk input TextField (nama & username).
-  // Dispose di onClose untuk mencegah memory leak.
   final TextEditingController nameController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
+
+  /// SVG avatar hasil generate dari username.
+  /// View hanya bertugas merender string SVG ini (tidak perlu tahu cara generate).
+  final avatarSvg = ''.obs;
 
   @override
   void onInit() {
@@ -32,19 +30,13 @@ class ProfileDetailController extends GetxController {
     errorMessage.value = null;
 
     try {
-      // -----------------------------------------------------------------------
-      // Validasi sesi login. Jika null, berarti user belum login.
-      // -----------------------------------------------------------------------
       final authUser = _supabase.auth.currentUser;
       if (authUser == null) {
         errorMessage.value = 'User belum login';
+        avatarSvg.value = '';
         return;
       }
 
-      // -----------------------------------------------------------------------
-      // Mengambil data profil dari tabel `user` berdasarkan id auth.
-      // Gunakan maybeSingle agar aman ketika data tidak ditemukan.
-      // -----------------------------------------------------------------------
       final data = await _supabase
           .from('user')
           .select()
@@ -53,17 +45,24 @@ class ProfileDetailController extends GetxController {
 
       if (data == null) {
         errorMessage.value = 'Data profil tidak ditemukan';
+        avatarSvg.value = '';
       } else {
         final appUser = AppUser.fromJson(data);
         user.value = appUser;
 
-        // Sinkronisasi nilai awal ke text field.
         nameController.text = appUser.fullName ?? '';
         usernameController.text = appUser.username;
+
+        // Seed utama: username. Fallback: email agar tetap stabil bila username kosong.
+        final seed = appUser.username.trim().isNotEmpty
+            ? appUser.username
+            : (appUser.email ?? 'user');
+
+        avatarSvg.value = MinidenticonGenerator.svg(seed);
       }
     } catch (e) {
-      // Error message disimpan agar UI bisa menampilkan feedback yang jelas.
       errorMessage.value = 'Gagal memuat profil: $e';
+      avatarSvg.value = '';
     } finally {
       isLoading.value = false;
     }
@@ -76,10 +75,6 @@ class ProfileDetailController extends GetxController {
     final fullName = nameController.text.trim();
     final username = usernameController.text.trim();
 
-    // -------------------------------------------------------------------------
-    // Validasi ringan di sisi client.
-    // Validasi unik username sebaiknya juga dilakukan di DB (unique constraint).
-    // -------------------------------------------------------------------------
     if (username.isEmpty) {
       Get.snackbar('Validasi', 'Username tidak boleh kosong.');
       return;
@@ -88,23 +83,28 @@ class ProfileDetailController extends GetxController {
     try {
       isUpdating.value = true;
 
-      // -----------------------------------------------------------------------
-      // Update ke tabel `user` sesuai id.
-      // `full_name` diset null jika input kosong agar data tetap bersih.
-      // -----------------------------------------------------------------------
       await _supabase.from('user').update({
         'full_name': fullName.isEmpty ? null : fullName,
         'username': username,
       }).eq('id', currentUser.id);
 
-      // Perbarui state lokal agar UI langsung ter-update tanpa reload.
-      user.value = AppUser(
+      // Perbarui state lokal agar UI langsung berubah tanpa reload.
+      final updatedUser = AppUser(
         id: currentUser.id,
         email: currentUser.email,
         username: username,
         fullName: fullName.isEmpty ? null : fullName,
         createdAt: currentUser.createdAt,
       );
+
+      user.value = updatedUser;
+
+      // Avatar juga harus ikut berubah saat username berubah.
+      final seed = updatedUser.username.trim().isNotEmpty
+          ? updatedUser.username
+          : (updatedUser.email ?? 'user');
+
+      avatarSvg.value = MinidenticonGenerator.svg(seed);
 
       Get.snackbar('Berhasil', 'Profil berhasil diperbarui.');
     } catch (e) {
@@ -116,7 +116,6 @@ class ProfileDetailController extends GetxController {
 
   @override
   void onClose() {
-    // Dispose untuk menghindari kebocoran memori dari TextEditingController.
     nameController.dispose();
     usernameController.dispose();
     super.onClose();
