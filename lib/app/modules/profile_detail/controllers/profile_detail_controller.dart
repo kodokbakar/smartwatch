@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/models/user_model.dart';
+import '../../../data/picture/minidenticon_generator.dart';
 
 class ProfileDetailController extends GetxController {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -13,6 +14,10 @@ class ProfileDetailController extends GetxController {
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
+
+  /// SVG avatar hasil generate dari username.
+  /// View hanya bertugas merender string SVG ini (tidak perlu tahu cara generate).
+  final avatarSvg = ''.obs;
 
   @override
   void onInit() {
@@ -28,6 +33,7 @@ class ProfileDetailController extends GetxController {
       final authUser = _supabase.auth.currentUser;
       if (authUser == null) {
         errorMessage.value = 'User belum login';
+        avatarSvg.value = '';
         return;
       }
 
@@ -39,14 +45,24 @@ class ProfileDetailController extends GetxController {
 
       if (data == null) {
         errorMessage.value = 'Data profil tidak ditemukan';
+        avatarSvg.value = '';
       } else {
         final appUser = AppUser.fromJson(data);
         user.value = appUser;
+
         nameController.text = appUser.fullName ?? '';
         usernameController.text = appUser.username;
+
+        // Seed utama: username. Fallback: email agar tetap stabil bila username kosong.
+        final seed = appUser.username.trim().isNotEmpty
+            ? appUser.username
+            : (appUser.email ?? 'user');
+
+        avatarSvg.value = MinidenticonGenerator.svg(seed);
       }
     } catch (e) {
       errorMessage.value = 'Gagal memuat profil: $e';
+      avatarSvg.value = '';
     } finally {
       isLoading.value = false;
     }
@@ -67,22 +83,28 @@ class ProfileDetailController extends GetxController {
     try {
       isUpdating.value = true;
 
-      await _supabase
-          .from('user')
-          .update({
-            'full_name': fullName.isEmpty ? null : fullName,
-            'username': username,
-          })
-          .eq('id', currentUser.id);
+      await _supabase.from('user').update({
+        'full_name': fullName.isEmpty ? null : fullName,
+        'username': username,
+      }).eq('id', currentUser.id);
 
-      // perbarui state lokal
-      user.value = AppUser(
+      // Perbarui state lokal agar UI langsung berubah tanpa reload.
+      final updatedUser = AppUser(
         id: currentUser.id,
         email: currentUser.email,
         username: username,
         fullName: fullName.isEmpty ? null : fullName,
         createdAt: currentUser.createdAt,
       );
+
+      user.value = updatedUser;
+
+      // Avatar juga harus ikut berubah saat username berubah.
+      final seed = updatedUser.username.trim().isNotEmpty
+          ? updatedUser.username
+          : (updatedUser.email ?? 'user');
+
+      avatarSvg.value = MinidenticonGenerator.svg(seed);
 
       Get.snackbar('Berhasil', 'Profil berhasil diperbarui.');
     } catch (e) {

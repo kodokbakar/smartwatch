@@ -1,8 +1,9 @@
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 
 import '../../../data/models/user_model.dart';
+import '../../../data/picture/minidenticon_generator.dart';
 
 class ProfileController extends GetxController {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -10,6 +11,10 @@ class ProfileController extends GetxController {
   final user = Rxn<AppUser>();
   final isLoading = false.obs;
   final errorMessage = RxnString();
+
+  /// SVG avatar hasil generate dari username.
+  /// View tidak perlu tahu cara membuatnya, cukup render string ini.
+  final avatarSvg = ''.obs;
 
   @override
   void onInit() {
@@ -26,7 +31,8 @@ class ProfileController extends GetxController {
 
       if (authUser == null) {
         errorMessage.value = 'User not logged in';
-        isLoading.value = false;
+        user.value = null;
+        avatarSvg.value = '';
         return;
       }
 
@@ -38,8 +44,18 @@ class ProfileController extends GetxController {
 
       if (data == null) {
         errorMessage.value = 'Profile data not found';
+        user.value = null;
+        avatarSvg.value = '';
       } else {
-        user.value = AppUser.fromJson(data);
+        final appUser = AppUser.fromJson(data);
+        user.value = appUser;
+
+        // Seed utama: username. Fallback: email agar tetap stabil.
+        final seed = (appUser.username).trim().isNotEmpty
+            ? appUser.username
+            : (appUser.email ?? 'user');
+
+        avatarSvg.value = MinidenticonGenerator.svg(seed);
       }
     } catch (e) {
       errorMessage.value = 'Failed to load profile: $e';
@@ -51,13 +67,16 @@ class ProfileController extends GetxController {
   Future<void> logout() async {
     try {
       await _supabase.auth.signOut();
+      // Reset state lokal agar UI tidak “nyangkut” user lama
+      user.value = null;
+      avatarSvg.value = '';
       Get.toNamed('/login');
     } catch (e) {
       Get.snackbar('Logout Failed', e.toString());
     }
   }
 
-  void goToProfileDetail() {  
+  void goToProfileDetail() {
     Get.toNamed('/profile-detail');
   }
 
@@ -65,18 +84,19 @@ class ProfileController extends GetxController {
     Get.toNamed('/helper');
   }
 
+  /// Menampilkan dialog informasi aplikasi (About App).
+  /// Dipisahkan menjadi method agar:
+  /// 1) View tetap bersih (hanya memanggil controller).
+  /// 2) Mudah dikembangkan (mis. tambah versi build number, link privacy policy, dsb).
   void goToAboutApp() {
     Get.dialog(
       Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: SizedBox(
-          width: Get.width * 0.85, // popup lebih besar
-          height: 260,             // tinggi lebih besar
+          width: Get.width * 0.85,
+          height: 260,
           child: Stack(
             children: [
-              // Konten utama dialog
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
                 child: Column(
@@ -84,7 +104,6 @@ class ProfileController extends GetxController {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 8),
-
                     Center(
                       child: Text(
                         'SmartWatch',
@@ -95,16 +114,13 @@ class ProfileController extends GetxController {
                       ),
                     ),
                     const SizedBox(height: 12),
-
                     const Center(
                       child: Text(
                         'Aplikasi dari rakyat untuk rakyat',
                         textAlign: TextAlign.center,
                       ),
                     ),
-
                     const Spacer(),
-
                     Center(
                       child: Text(
                         'Versi 1.0.0',
@@ -118,7 +134,7 @@ class ProfileController extends GetxController {
                 ),
               ),
 
-              // Tombol X di pojok kanan atas popup
+              // Tombol close di pojok kanan atas
               Positioned(
                 right: 0,
                 top: 0,
@@ -135,5 +151,4 @@ class ProfileController extends GetxController {
       barrierDismissible: true,
     );
   }
-
 }

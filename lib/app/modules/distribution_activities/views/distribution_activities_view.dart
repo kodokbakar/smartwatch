@@ -231,12 +231,13 @@ class DistributionActivitiesView
     IconData iconData;
 
     switch (report.status) {
-      case 'Ditinjau':
+      case 'Dalam Antrean':
+      case 'Sedang Proses':
         iconBgColor = Colors.orange.shade100;
         iconColor = Colors.orange.shade700;
-        badgeColor = Colors.yellow.shade600;
+        badgeColor = Colors.orange.shade600;
         badgeTextColor = Colors.white;
-        iconData = Icons.warning_amber_rounded;
+        iconData = Icons.hourglass_top_rounded;
         break;
       case 'Ditindaklanjuti':
         iconBgColor = Colors.blue.shade100;
