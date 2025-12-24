@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/distribution_activities_controller.dart';
 import '../../../widgets/app_drawer.dart';
+import '../models/laporan_model.dart';
 
 class DistributionActivitiesView
     extends GetView<DistributionActivitiesController> {
@@ -223,7 +224,8 @@ class DistributionActivitiesView
     );
   }
 
-  Widget _buildReportCard(ReportModel report) {
+  Widget _buildReportCard(LaporanModel report)
+  {
     Color iconBgColor;
     Color iconColor;
     Color badgeColor;
@@ -296,7 +298,7 @@ class DistributionActivitiesView
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    report.title,
+                    report.judul,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -305,7 +307,7 @@ class DistributionActivitiesView
                   ),
                   SizedBox(height: 8),
                   Text(
-                    report.description,
+                    report.deskripsi,
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey.shade600,
