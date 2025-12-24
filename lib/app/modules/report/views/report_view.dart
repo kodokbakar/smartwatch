@@ -79,7 +79,7 @@ class ReportView extends GetView<ReportController> {
                       childAspectRatio: 1.4,
                       children: [
                         _buildSummaryCard(
-                          'Total Anggaran',
+                          'Total Anggaran Dikeluarkan',
                           controller.totalAnggaran.value,
                           const Color(0xFF6C5CE7),
                         ),
@@ -94,7 +94,7 @@ class ReportView extends GetView<ReportController> {
                           const Color(0xFF8B7EF7),
                         ),
                         _buildSummaryCard(
-                          'Total Dana',
+                          'Total Distribusi Realisasi Proyek',
                           controller.totalDistribusi.value.toString(),
                           const Color(0xFF8B7EF7),
                         ),
