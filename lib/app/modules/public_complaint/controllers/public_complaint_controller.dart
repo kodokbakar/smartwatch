@@ -1,72 +1,34 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models/public_complaint_models.dart';
 
 class PublicComplaintController extends GetxController {
-  final selectedTab = 0.obs;
+  final SupabaseClient _db = Supabase.instance.client;
 
-  // Statistik utama - berubah sesuai filter
-  final RxInt completedCases = 0.obs;
+  // =======================
+  // TAB
+  // =======================
+  final RxInt selectedTab = 0.obs;
+
+  // =======================
+  // SUMMARY
+  // =======================
   final RxInt totalReports = 0.obs;
+  final RxInt completedCases = 0.obs;
 
-  // Kategori Aduan - berubah sesuai filter
+  // =======================
+  // CATEGORY
+  // =======================
   final RxInt penyalahgunaanWewenang = 0.obs;
   final RxInt diskriminasi = 0.obs;
   final RxInt kekerasanBerlebihan = 0.obs;
 
-  // Data untuk grafik tren - berubah sesuai filter
-  final RxList<ChartData> trendData = <ChartData>[].obs;
-
-  // Data master untuk setiap periode
-  final Map<int, PeriodData> periodDataMap = {
-    0: PeriodData(
-      // Bulan Ini
-      completedCases: 87,
-      totalReports: 134,
-      penyalahgunaanWewenang: 95,
-      diskriminasi: 75,
-      kekerasanBerlebihan: 55,
-      chartData: [
-        ChartData(label: 'Week 1', value: 25),
-        ChartData(label: 'Week 2', value: 35),
-        ChartData(label: 'Week 3', value: 42),
-        ChartData(label: 'Week 4', value: 32),
-      ],
-    ),
-    1: PeriodData(
-      // 3 Bulan Terakhir
-      completedCases: 287,
-      totalReports: 456,
-      penyalahgunaanWewenang: 88,
-      diskriminasi: 70,
-      kekerasanBerlebihan: 62,
-      chartData: [
-        ChartData(label: 'Bulan 1', value: 120),
-        ChartData(label: 'Bulan 2', value: 156),
-        ChartData(label: 'Bulan 3', value: 180),
-      ],
-    ),
-    2: PeriodData(
-      // Tahun Ini
-      completedCases: 987,
-      totalReports: 1234,
-      penyalahgunaanWewenang: 80,
-      diskriminasi: 65,
-      kekerasanBerlebihan: 48,
-      chartData: [
-        ChartData(label: 'Jan', value: 80),
-        ChartData(label: 'Feb', value: 95),
-        ChartData(label: 'Mar', value: 120),
-        ChartData(label: 'Apr', value: 110),
-        ChartData(label: 'Mei', value: 130),
-        ChartData(label: 'Jun', value: 145),
-        ChartData(label: 'Jul', value: 125),
-        ChartData(label: 'Ago', value: 140),
-        ChartData(label: 'Sep', value: 155),
-        ChartData(label: 'Okt', value: 150),
-        ChartData(label: 'Nov', value: 160),
-        ChartData(label: 'Des', value: 134),
-      ],
-    ),
-  };
+  // =======================
+  // TREND
+  // =======================
+  final RxList<PublicComplaintTrend> trendData =
+      <PublicComplaintTrend>[].obs;
 
   @override
   void onInit() {
@@ -74,68 +36,93 @@ class PublicComplaintController extends GetxController {
     loadData();
   }
 
-  // Load data berdasarkan tab yang dipilih
-  Future<void> loadData() async {
-    await Future.delayed(Duration(milliseconds: 400));
-    updateDataForTab(selectedTab.value);
-  }
-
-  // Update data ketika tab berubah
   void changeTab(int index) {
     selectedTab.value = index;
-    updateDataForTab(index);
+    loadData();
   }
 
-  // Update semua data berdasarkan periode yang dipilih
-  void updateDataForTab(int tabIndex) {
-    final data = periodDataMap[tabIndex];
-    if (data != null) {
-      completedCases.value = data.completedCases;
-      totalReports.value = data.totalReports;
-      penyalahgunaanWewenang.value = data.penyalahgunaanWewenang;
-      diskriminasi.value = data.diskriminasi;
-      kekerasanBerlebihan.value = data.kekerasanBerlebihan;
-      trendData.value = data.chartData;
+  // =======================
+  // LOAD ALL
+  // =======================
+  Future<void> loadData() async {
+    await Future.wait([
+      _loadSummary(),
+      _loadCategories(),
+      _loadTrend(),
+    ]);
+  }
+
+  // =======================
+  // SUMMARY
+  // =======================
+  Future<void> _loadSummary() async {
+    final rows = await _db
+        .from('laporan')
+        .select('status');
+
+    totalReports.value = rows.length;
+    completedCases.value =
+        rows.where((e) => e['status'] == 'Selesai').length;
+  }
+
+  // =======================
+  // CATEGORY (INI KUNCI)
+  // =======================
+  Future<void> _loadCategories() async {
+    final rows = await _db
+        .from('laporan')
+        .select('kategori');
+
+    penyalahgunaanWewenang.value = 0;
+    diskriminasi.value = 0;
+    kekerasanBerlebihan.value = 0;
+
+    for (final row in rows) {
+      final kategori = row['kategori'];
+
+      if (kategori == 'Penyalahgunaan Wewenang') {
+        penyalahgunaanWewenang.value++;
+      } else if (kategori == 'Diskriminasi') {
+        diskriminasi.value++;
+      } else if (kategori == 'Kekerasan Berlebihan') {
+        kekerasanBerlebihan.value++;
+      }
     }
   }
 
-  // Helper untuk mendapatkan persentase kategori
-  double getCategoryPercentage(int categoryValue) {
-    return categoryValue / 100.0;
+  // =======================
+  // TREND (GROUP BY BULAN)
+  // =======================
+  Future<void> _loadTrend() async {
+    final rows = await _db
+        .from('laporan')
+        .select('created_at');
+
+    final Map<String, int> grouped = {};
+
+    for (final row in rows) {
+      final date = DateTime.parse(row['created_at']);
+      final label = '${date.month}/${date.year}';
+
+      grouped[label] = (grouped[label] ?? 0) + 1;
+    }
+
+    trendData.assignAll(
+      grouped.entries.map(
+            (e) => PublicComplaintTrend(
+          label: e.key,
+          value: e.value.toDouble(),
+        ),
+      ),
+    );
   }
 
-  @override
-  void onClose() {
-    super.onClose();
+  // =======================
+  // UTIL
+  // =======================
+  double getCategoryPercentage(int value) {
+    if (totalReports.value == 0) return 0;
+    return value / totalReports.value;
   }
 }
 
-// Model untuk data periode
-class PeriodData {
-  final int completedCases;
-  final int totalReports;
-  final int penyalahgunaanWewenang;
-  final int diskriminasi;
-  final int kekerasanBerlebihan;
-  final List<ChartData> chartData;
-
-  PeriodData({
-    required this.completedCases,
-    required this.totalReports,
-    required this.penyalahgunaanWewenang,
-    required this.diskriminasi,
-    required this.kekerasanBerlebihan,
-    required this.chartData,
-  });
-}
-
-// Model untuk data chart
-class ChartData {
-  final String label;
-  final double value;
-
-  ChartData({
-    required this.label,
-    required this.value,
-  });
-}
