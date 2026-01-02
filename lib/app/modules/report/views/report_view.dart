@@ -14,7 +14,7 @@ class ReportView extends GetView<ReportController> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.black87),
+          icon: const Icon(Icons.menu, color: Colors.black87),
           onPressed: () {
             showGeneralDialog(
               context: context,
@@ -22,9 +22,9 @@ class ReportView extends GetView<ReportController> {
               barrierLabel:
               MaterialLocalizations.of(context).modalBarrierDismissLabel,
               barrierColor: Colors.black54,
-              transitionDuration: Duration(milliseconds: 300),
+              transitionDuration: const Duration(milliseconds: 300),
               pageBuilder: (context, animation, secondaryAnimation) {
-                return Align(
+                return const Align(
                   alignment: Alignment.centerLeft,
                   child: AppDrawer(),
                 );
@@ -33,7 +33,7 @@ class ReportView extends GetView<ReportController> {
                   (context, animation, secondaryAnimation, child) {
                 return SlideTransition(
                   position: Tween<Offset>(
-                    begin: Offset(-1, 0),
+                    begin: const Offset(-1, 0),
                     end: Offset.zero,
                   ).animate(animation),
                   child: child,
@@ -44,23 +44,23 @@ class ReportView extends GetView<ReportController> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.account_circle_outlined, color: Colors.black87),
+            icon: const Icon(Icons.account_circle_outlined, color: Colors.black87),
             onPressed: () {},
           ),
         ],
       ),
       body: Obx(() {
         if (controller.isLoading.value && controller.activities.isEmpty) {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(color: Color(0xFF6C5CE7)),
           );
         }
 
         return RefreshIndicator(
           onRefresh: controller.refreshDashboard,
-          color: Color(0xFF6C5CE7),
+          color: const Color(0xFF6C5CE7),
           child: SingleChildScrollView(
-            physics: AlwaysScrollableScrollPhysics(),
+            physics: const AlwaysScrollableScrollPhysics(),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -73,46 +73,40 @@ class ReportView extends GetView<ReportController> {
                         () => GridView.count(
                       crossAxisCount: 2,
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
                       childAspectRatio: 1.4,
                       children: [
                         _buildSummaryCard(
-                          'Total Anggaran',
+                          'Total Anggaran Dikeluarkan',
                           controller.totalAnggaran.value,
-                          Color(0xFF6C5CE7),
+                          const Color(0xFF6C5CE7),
                         ),
                         _buildSummaryCard(
                           'Total Realisasi',
                           controller.totalRealisasi.value,
-                          Color(0xFF6C5CE7),
+                          const Color(0xFF6C5CE7),
                         ),
                         _buildSummaryCard(
                           'Total Proyek',
                           controller.totalProyek.value.toString(),
-                          Color(0xFF8B7EF7),
-                          onTap: () {
-                            Get.toNamed('/public-complaint'); // ✅ ROUTE BARU
-                          },
+                          const Color(0xFF8B7EF7),
                         ),
                         _buildSummaryCard(
-                          'Total Distribusi',
+                          'Total Distribusi Realisasi Proyek',
                           controller.totalDistribusi.value.toString(),
-                          Color(0xFF8B7EF7),
-                          onTap: () {
-                            Get.toNamed('/distribution-activities'); // ✅ ROUTE BARU
-                          },
+                          const Color(0xFF8B7EF7),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
                   // =======================
                   // ACTIVITY TITLE
                   // =======================
-                  Text(
+                  const Text(
                     'Aktivitas Distribusi Terkini',
                     style: TextStyle(
                       fontSize: 18,
@@ -120,7 +114,7 @@ class ReportView extends GetView<ReportController> {
                       color: Colors.black87,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // =======================
                   // ACTIVITY LIST
@@ -128,7 +122,7 @@ class ReportView extends GetView<ReportController> {
                   Obx(() {
                     if (controller.activities.isEmpty) {
                       return Container(
-                        padding: EdgeInsets.all(40),
+                        padding: const EdgeInsets.all(40),
                         child: Center(
                           child: Column(
                             children: [
@@ -137,7 +131,7 @@ class ReportView extends GetView<ReportController> {
                                 size: 64,
                                 color: Colors.grey.shade400,
                               ),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               Text(
                                 'Tidak ada aktivitas',
                                 style: TextStyle(
@@ -153,17 +147,17 @@ class ReportView extends GetView<ReportController> {
 
                     return ListView.separated(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: controller.activities.length,
                       separatorBuilder: (context, index) =>
-                          SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         final activity = controller.activities[index];
                         return _buildActivityCard(activity);
                       },
                     );
                   }),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -174,55 +168,51 @@ class ReportView extends GetView<ReportController> {
   }
 
   // =======================
-  // SUMMARY CARD (CLICKABLE)
+  // SUMMARY CARD
   // =======================
   Widget _buildSummaryCard(
       String title,
       String value,
-      Color color, {
-        VoidCallback? onTap,
-      }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF5F33E1), Color(0xFF8B7EF7)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      Color color,
+      ) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [color, color.withOpacity(0.85)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.3),
-              blurRadius: 8,
-              offset: Offset(0, 4),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
             ),
-            Text(
-              value,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -235,13 +225,13 @@ class ReportView extends GetView<ReportController> {
 
     switch (activity.status) {
       case 'Selesai':
-        statusColor = Color(0xFF00D25B);
+        statusColor = const Color(0xFF00D25B);
         break;
       case 'Berjalan':
-        statusColor = Color(0xFF3B82F6);
+        statusColor = const Color(0xFF3B82F6);
         break;
       case 'Tertunda':
-        statusColor = Color(0xFFFF6B6B);
+        statusColor = const Color(0xFFFF6B6B);
         break;
       default:
         statusColor = Colors.grey;
@@ -250,7 +240,7 @@ class ReportView extends GetView<ReportController> {
     return GestureDetector(
       onTap: () => controller.onActivityTapped(activity),
       child: Container(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -258,7 +248,7 @@ class ReportView extends GetView<ReportController> {
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
               blurRadius: 10,
-              offset: Offset(0, 4),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -275,7 +265,7 @@ class ReportView extends GetView<ReportController> {
                     shape: BoxShape.circle,
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   activity.status,
                   style: TextStyle(
@@ -286,7 +276,7 @@ class ReportView extends GetView<ReportController> {
                 ),
               ],
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -300,7 +290,7 @@ class ReportView extends GetView<ReportController> {
                         fontSize: 12,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       'Nama Proyek',
                       style: TextStyle(
@@ -315,16 +305,16 @@ class ReportView extends GetView<ReportController> {
                   children: [
                     Text(
                       activity.totalDana,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.black87,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       activity.namaProyek,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.black87,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -334,7 +324,7 @@ class ReportView extends GetView<ReportController> {
                 ),
               ],
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: LinearProgressIndicator(
@@ -344,7 +334,7 @@ class ReportView extends GetView<ReportController> {
                 minHeight: 8,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,
               child: Text(

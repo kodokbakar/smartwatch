@@ -32,8 +32,8 @@ class ReportController extends GetxController {
       // Set summary data
       totalAnggaran.value = 'Rp. 2.5 T';
       totalRealisasi.value = 'Rp. 1.9 T';
-      totalProyek.value = 125;
-      totalDistribusi.value = 247;
+      totalProyek.value = 9;
+      totalDistribusi.value = 2;
 
       // Set activities data
       activities.value = [
