@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:your_app/app/modules/register/controllers/register_controller.dart';
+import 'package:smartwatch/app/modules/register/controllers/register_controller.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
