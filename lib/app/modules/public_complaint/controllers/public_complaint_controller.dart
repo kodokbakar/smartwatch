@@ -42,37 +42,36 @@ class PublicComplaintController extends GetxController {
   }
 
   // =======================
-  // LOAD ALL
+  // LOAD ALL (SATU SUMBER DATA)
   // =======================
   Future<void> loadData() async {
-    await Future.wait([
-      _loadSummary(),
-      _loadCategories(),
-      _loadTrend(),
-    ]);
+    try {
+      final rows = await _db
+          .from('laporan')
+          .select('status, kategori, created_at');
+
+      _processSummary(rows);
+      _processCategories(rows);
+      _processTrend(rows);
+    } catch (e) {
+      debugPrint('Error load data public complaint: $e');
+    }
   }
 
   // =======================
-  // SUMMARY
+  // SUMMARY (SAMA DENGAN DASHBOARD)
   // =======================
-  Future<void> _loadSummary() async {
-    final rows = await _db
-        .from('laporan')
-        .select('status');
-
+  void _processSummary(List<dynamic> rows) {
     totalReports.value = rows.length;
+
     completedCases.value =
         rows.where((e) => e['status'] == 'Selesai').length;
   }
 
   // =======================
-  // CATEGORY (INI KUNCI)
+  // CATEGORY (TANPA QUERY ULANG)
   // =======================
-  Future<void> _loadCategories() async {
-    final rows = await _db
-        .from('laporan')
-        .select('kategori');
-
+  void _processCategories(List<dynamic> rows) {
     penyalahgunaanWewenang.value = 0;
     diskriminasi.value = 0;
     kekerasanBerlebihan.value = 0;
@@ -93,11 +92,7 @@ class PublicComplaintController extends GetxController {
   // =======================
   // TREND (GROUP BY BULAN)
   // =======================
-  Future<void> _loadTrend() async {
-    final rows = await _db
-        .from('laporan')
-        .select('created_at');
-
+  void _processTrend(List<dynamic> rows) {
     final Map<String, int> grouped = {};
 
     for (final row in rows) {
@@ -125,4 +120,3 @@ class PublicComplaintController extends GetxController {
     return value / totalReports.value;
   }
 }
-
