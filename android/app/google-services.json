@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "487675955842",
+    "project_id": "smartwatch-bla-666",
+    "storage_bucket": "smartwatch-bla-666.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:487675955842:android:ecbc82f776fbe0a084c29b",
+        "android_client_info": {
+          "package_name": "com.swartwatch.smartwatch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFNXpizSWZbyO7xdneqCrc23sxP-cO0ZA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
