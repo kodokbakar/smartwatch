@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class ReportController extends GetxController {
   // Observable list untuk aktivitas distribusi
@@ -14,20 +15,31 @@ class ReportController extends GetxController {
   // Loading state
   final RxBool isLoading = false.obs;
 
+  // Instance GA4
+  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+
   @override
   void onInit() {
     super.onInit();
+
+    // GA4: catat screen report dibuka
+    _analytics.logScreenView(screenName: 'report');
+    _analytics.logEvent(name: 'report_open');
+
     loadDashboardData();
   }
 
   // Fungsi untuk load data dashboard
   Future<void> loadDashboardData() async {
-    try {
-      isLoading.value = true;
+    isLoading.value = true;
 
+    // GA4: mulai load data
+    _analytics.logEvent(name: 'report_data_load_start');
+
+    try {
       // Simulasi fetch data dari API
       // TODO: Ganti dengan API call sebenarnya
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
 
       // Set summary data
       totalAnggaran.value = 'Rp. 2.5 T';
@@ -59,7 +71,22 @@ class ReportController extends GetxController {
           progress: 0,
         ),
       ];
+
+      // GA4: load sukses (kirim angka ringkas saja)
+      _analytics.logEvent(
+        name: 'report_data_load_success',
+        parameters: {
+          'total_proyek': totalProyek.value,
+          'total_distribusi': totalDistribusi.value,
+        },
+      );
     } catch (e) {
+      // GA4: load gagal (reason dibuat generik)
+      _analytics.logEvent(
+        name: 'report_data_load_failed',
+        parameters: {'reason': 'exception'},
+      );
+
       Get.snackbar(
         'Error',
         'Gagal memuat data: ${e.toString()}',
@@ -74,19 +101,33 @@ class ReportController extends GetxController {
 
   // Fungsi untuk refresh data (Pull to refresh)
   Future<void> refreshDashboard() async {
+    // GA4: user melakukan refresh
+    _analytics.logEvent(name: 'report_refresh');
+
     await loadDashboardData();
   }
 
   // Fungsi untuk handle klik activity card
   void onActivityTapped(ActivityModel activity) {
-    // Navigate ke detail page atau show dialog
+    // GA4: user tap activity
+    // Hindari kirim nama proyek. Cukup status/progress saja.
+    _analytics.logEvent(
+      name: 'report_activity_tap',
+      parameters: {
+        'status': activity.status,
+        'progress': activity.progress, // double/int aman
+        'has_id': activity.id == null ? 0 : 1,
+      },
+    );
+
+    // UI feedback
     Get.snackbar(
       'Detail Proyek',
       'Proyek: ${activity.namaProyek}\nStatus: ${activity.status}',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.blue.shade100,
       colorText: Colors.blue.shade900,
-      duration: Duration(seconds: 2),
+      duration: const Duration(seconds: 2),
     );
 
     // TODO: Navigate ke halaman detail
@@ -95,7 +136,6 @@ class ReportController extends GetxController {
 
   @override
   void onClose() {
-    // Cleanup jika diperlukan
     super.onClose();
   }
 }

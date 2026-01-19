@@ -1,11 +1,36 @@
+import 'dart:async'; // untuk unawaited
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 import '../models/home_model.dart';
 
+/// Abstraksi GA4 agar mudah di-unit test (bisa inject no-op/mock).
+typedef AnalyticsLogEventFn = Future<void> Function({
+  required String name,
+  Map<String, Object?>? parameters,
+});
+
+typedef AnalyticsLogScreenViewFn = Future<void> Function({
+  required String screenName,
+});
+
 class HomeController extends GetxController {
-  final SupabaseClient _supabase = Supabase.instance.client;
+  HomeController({
+    SupabaseClient? supabase,
+    AnalyticsLogEventFn? analyticsLogEvent,
+    AnalyticsLogScreenViewFn? analyticsLogScreenView,
+  })  : _supabase = supabase ?? Supabase.instance.client,
+        _analyticsLogEvent = analyticsLogEvent ?? _firebaseLogEvent,
+        _analyticsLogScreenView =
+            analyticsLogScreenView ?? _firebaseLogScreenView;
+
+  final SupabaseClient _supabase;
+
+  // GA4 handlers
+  final AnalyticsLogEventFn _analyticsLogEvent;
+  final AnalyticsLogScreenViewFn _analyticsLogScreenView;
 
   final selectedTab = 0.obs;
 
@@ -29,6 +54,11 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
+    // GA4: catat dashboard dibuka (screen + event).
+    unawaited(_analyticsLogScreenView(screenName: 'dashboard'));
+    unawaited(_analyticsLogEvent(name: 'dashboard_open'));
+
     fetchReports();
   }
 
@@ -43,6 +73,10 @@ class HomeController extends GetxController {
 
   Future<void> fetchReports() async {
     isLoading.value = true;
+
+    // GA4: mulai fetch laporan.
+    unawaited(_analyticsLogEvent(name: 'reports_fetch_start'));
+
     try {
       final data = await _supabase
           .from('laporan')
@@ -62,7 +96,23 @@ class HomeController extends GetxController {
       selesai.value = list.where((l) => l.status == 'Selesai').length;
 
       _recalculateMonthlyStats(list);
+
+      // GA4: fetch sukses + metrik ringkas (tanpa data sensitif).
+      unawaited(_analyticsLogEvent(
+        name: 'reports_fetch_success',
+        parameters: {
+          'total': totalLaporan.value,
+          'sedang_proses': sedangProses.value,
+          'selesai': selesai.value,
+        },
+      ));
     } catch (e) {
+      // GA4: fetch gagal (reason dibuat generik agar aman).
+      unawaited(_analyticsLogEvent(
+        name: 'reports_fetch_failed',
+        parameters: {'reason': 'exception'},
+      ));
+
       Get.snackbar(
         'Error',
         'Gagal memuat laporan: $e',
@@ -75,6 +125,9 @@ class HomeController extends GetxController {
 
   /// Dipakai oleh RefreshIndicator
   Future<void> onRefresh() async {
+    // GA4: user melakukan refresh manual.
+    unawaited(_analyticsLogEvent(name: 'dashboard_refresh'));
+
     await fetchReports();
   }
 
@@ -113,8 +166,7 @@ class HomeController extends GetxController {
 
     // Ambil maksimal 4 bulan terakhir yang punya data
     final keys = counts.keys.toList()..sort(); // ascending
-    final last4 =
-        keys.length > 4 ? keys.sublist(keys.length - 4) : keys;
+    final last4 = keys.length > 4 ? keys.sublist(keys.length - 4) : keys;
 
     // cari count terbesar untuk normalisasi tinggi bar
     int maxCount = 0;
@@ -165,13 +217,24 @@ class HomeController extends GetxController {
 
   void changeTab(int index) {
     selectedTab.value = index;
+
+    // GA4: user mengganti tab (0=Semua, 1=Sedang Proses, 2=Selesai).
+    unawaited(_analyticsLogEvent(
+      name: 'dashboard_tab_change',
+      parameters: {'tab_index': index},
+    ));
   }
 
   void openProfile() {
+    // GA4: user membuka profile dari dashboard.
+    unawaited(_analyticsLogEvent(name: 'profile_open_from_dashboard'));
     Get.toNamed('/profile');
   }
 
   void createNewReport() {
+    // GA4: user membuka bottom sheet buat laporan baru.
+    unawaited(_analyticsLogEvent(name: 'report_create_open'));
+
     Get.bottomSheet(
       _buildReportBottomSheet(),
       backgroundColor: Colors.white,
@@ -196,7 +259,6 @@ class HomeController extends GetxController {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with back button
             Row(
               children: [
                 IconButton(
@@ -218,7 +280,6 @@ class HomeController extends GetxController {
             ),
             const SizedBox(height: 24),
 
-            // Field: Laporan (judul)
             const Text(
               'Laporan',
               style: TextStyle(fontSize: 14, color: Colors.black87),
@@ -238,13 +299,11 @@ class HomeController extends GetxController {
                 focusedBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue.shade700),
                 ),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 8),
+                contentPadding: const EdgeInsets.symmetric(vertical: 8),
               ),
             ),
             const SizedBox(height: 20),
 
-            // Field: Deskripsi Laporan
             const Text(
               'Deskripsi Laporan',
               style: TextStyle(fontSize: 14, color: Colors.black87),
@@ -265,13 +324,11 @@ class HomeController extends GetxController {
                 focusedBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue.shade700),
                 ),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 8),
+                contentPadding: const EdgeInsets.symmetric(vertical: 8),
               ),
             ),
             const SizedBox(height: 32),
 
-            // Submit button
             Obx(
               () => SizedBox(
                 width: double.infinity,
@@ -316,7 +373,16 @@ class HomeController extends GetxController {
     final judul = laporanController.text.trim();
     final deskripsi = deskripsiController.text.trim();
 
+    // GA4: user menekan submit (attempt).
+    unawaited(_analyticsLogEvent(name: 'report_submit_attempt'));
+
     if (judul.isEmpty || deskripsi.isEmpty) {
+      // GA4: validasi gagal, jangan kirim isi judul/deskripsi.
+      unawaited(_analyticsLogEvent(
+        name: 'report_submit_validation_failed',
+        parameters: {'reason': 'empty_field'},
+      ));
+
       Get.snackbar(
         'Error',
         'Mohon isi semua field',
@@ -344,8 +410,7 @@ class HomeController extends GetxController {
           .select()
           .single();
 
-      final newLaporan =
-          Laporan.fromJson(inserted as Map<String, dynamic>);
+      final newLaporan = Laporan.fromJson(inserted as Map<String, dynamic>);
       laporanList.insert(0, newLaporan);
 
       totalLaporan.value++;
@@ -353,6 +418,12 @@ class HomeController extends GetxController {
       sedangProses.value++;
 
       _recalculateMonthlyStats(laporanList);
+
+      // GA4: submit sukses.
+      unawaited(_analyticsLogEvent(
+        name: 'report_submit_success',
+        parameters: {'status': 'Sedang Proses'},
+      ));
 
       Get.back();
       Get.snackbar(
@@ -366,6 +437,12 @@ class HomeController extends GetxController {
       laporanController.clear();
       deskripsiController.clear();
     } catch (e) {
+      // GA4: submit gagal.
+      unawaited(_analyticsLogEvent(
+        name: 'report_submit_failed',
+        parameters: {'reason': 'exception'},
+      ));
+
       Get.snackbar(
         'Error',
         'Gagal menyimpan laporan: $e',
@@ -379,6 +456,53 @@ class HomeController extends GetxController {
   }
 
   void openReportDetail(Laporan laporan) {
+    // GA4: user membuka detail laporan.
+    unawaited(_analyticsLogEvent(
+      name: 'report_detail_open',
+      parameters: {
+        'status': laporan.status, // aman, bukan PII
+      },
+    ));
+
     Get.toNamed('/report-detail', arguments: laporan);
+  }
+
+  // ===== GA4 default implementations (Production) =====
+
+  static Future<void> _firebaseLogScreenView({
+    required String screenName,
+  }) {
+    return FirebaseAnalytics.instance.logScreenView(screenName: screenName);
+  }
+
+  static Future<void> _firebaseLogEvent({
+    required String name,
+    Map<String, Object?>? parameters,
+  }) {
+    // FirebaseAnalytics.logEvent butuh Map<String, Object> tanpa nilai null.
+    Map<String, Object>? cleaned;
+
+    if (parameters != null) {
+      final tmp = <String, Object>{};
+      for (final entry in parameters.entries) {
+        final v = entry.value;
+        if (v == null) continue;
+
+        // Tipe parameter yang aman untuk GA4: String / int / double.
+        if (v is String || v is int || v is double) {
+          tmp[entry.key] = v;
+        } else if (v is bool) {
+          tmp[entry.key] = v ? 1 : 0;
+        } else {
+          tmp[entry.key] = v.toString();
+        }
+      }
+      cleaned = tmp.isEmpty ? null : tmp;
+    }
+
+    return FirebaseAnalytics.instance.logEvent(
+      name: name,
+      parameters: cleaned,
+    );
   }
 }
